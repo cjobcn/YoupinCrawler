@@ -303,24 +303,26 @@ if __name__ == '__main__':
         # 爬取正常用户的好友列表
         print('开始爬取正常用户的好友列表！')
         log.info('开始爬取正常用户的好友列表！')
+        # 一次获取最高好友数
+        max_once = 3000
+        try:
+            list_start = (int(sys.argv[2])-1) * max_once
+        except IndexError:
+            list_start = 0
         for account in get_accounts(condition=mmdb.SjUser.status > 0):
             s = requests.Session()
             username = account.maimai_account
             password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
             # print(username, password)
+            cn = account.resume_count
+            if list_start >= cn:
+                break
             current_id = login()
             if current_id > 0:
-                cn = count_contact(current_id)
-                # 一次获取最高好友数
-                max_once = 3000
-                list_start = 0
-                for list_start in range(0, cn, max_once):
+                if list_start + max_once < cn:
                     crawl_contact(current_id, max_once, list_start)
-                    # 休息一会
-                    time.sleep(30)
-                    s = requests.Session()
-                    login()
-                crawl_contact(current_id, cn, list_start)
+                else:
+                    crawl_contact(current_id, cn, list_start)
             time.sleep(5)
             print(username + '的好友爬取结束！')
             log.info(username + '的好友爬取结束！')
