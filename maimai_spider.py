@@ -292,6 +292,7 @@ if __name__ == '__main__':
         print('开始账户检测！')
         log.info('开始账户检测！')
         for account in mmdb.SjUser.select():
+            s = requests.Session()
             username = account.maimai_account
             password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
             print(username, password)
@@ -305,6 +306,7 @@ if __name__ == '__main__':
         print('开始爬取正常用户的好友列表！')
         log.info('开始爬取正常用户的好友列表！')
         for account in get_accounts(condition=mmdb.SjUser.status > 0):
+            s = requests.Session()
             username = account.maimai_account
             password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
             # print(username, password)
@@ -321,6 +323,7 @@ if __name__ == '__main__':
         print('开始使用正常用户爬取好友详情！')
         log.info('开始使用正常用户爬取好友详情！')
         for account in get_accounts(condition=mmdb.SjUser.status > 0):
+            s = requests.Session()
             username = account.maimai_account
             password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
             print(username, password)
