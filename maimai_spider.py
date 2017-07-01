@@ -294,6 +294,7 @@ if __name__ == '__main__':
             username = account.maimai_account
             password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
             check_login()
+            time.sleep(10)
         print('账户检测完毕！')
         log.info('账户检测完毕！')
 
