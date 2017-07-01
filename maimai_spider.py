@@ -278,7 +278,7 @@ def get_accounts(mm_id=0, condition=True):
 
 
 def query(table, condition, page=1):
-    pnum = 4
+    pnum = 100
     try:
         return table.select().where(condition).paginate(page, pnum)
     except mmdb.DoesNotExist:

@@ -1,5 +1,6 @@
 # YoupinCrawler
-# 依赖
+## 依赖
 - PyMySQL
 - requests
 - peewee
+- logbook
