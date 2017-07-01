@@ -311,10 +311,13 @@ if __name__ == '__main__':
             current_id = login()
             if current_id > 0:
                 cn = count_contact(current_id)
-                max_once = 6000
+                # 一次获取最高好友数
+                max_once = 3000
                 list_start = 0
                 for list_start in range(0, cn, max_once):
                     crawl_contact(current_id, max_once, list_start)
+                    # 休息一会
+                    time.sleep(30)
                     s = requests.Session()
                     login()
                 crawl_contact(current_id, cn, list_start)
