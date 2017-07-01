@@ -53,7 +53,7 @@ def login():
     if lr.status_code == 200:
         login_json = json_parse(lr.text)
         if login_json is None:
-            if re.search('帐号或密码不正确|账号或密码错误', lr.text) is not None:
+            if re.search('帐号或密码不正确|账号或密码错误|账号或密码频繁出错', lr.text) is not None:
                 log.warn(username + '账号或密码错误！')
                 return -1
             else:
