@@ -97,7 +97,7 @@ def count_contact(login_id):
     return cdr.json()['data']['inapp_d1cnt']
 
 
-def crawl_contact(total, login_id):
+def crawl_contact(login_id, total, start=0):
     """
     爬取联系人
     :param total:
@@ -106,7 +106,7 @@ def crawl_contact(total, login_id):
     """
     contact_list_url = 'https://maimai.cn/contact/inapp_dist1_list'
     contact_list_param = dict(jsononly=1)
-    for contact_list_param['start'] in range(0, total, 15):
+    for contact_list_param['start'] in range(start, total, 15):
         # 提取好友列表
         clr = s.get(contact_list_url, params=contact_list_param)
         if 'contacts' in clr.json()['data']:
@@ -311,7 +311,13 @@ if __name__ == '__main__':
             current_id = login()
             if current_id > 0:
                 cn = count_contact(current_id)
-                crawl_contact(cn, current_id)
+                max_once = 6000
+                list_start = 0
+                for list_start in range(0, cn, max_once):
+                    crawl_contact(current_id, max_once, list_start)
+                    s = requests.Session()
+                    login()
+                crawl_contact(current_id, cn, list_start)
             time.sleep(5)
             print(username + '的好友爬取结束！')
             log.info(username + '的好友爬取结束！')
