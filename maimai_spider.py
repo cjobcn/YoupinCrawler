@@ -53,11 +53,12 @@ def login():
     if lr.status_code == 200:
         login_json = json_parse(lr.text)
         if login_json is None:
-            if re.search('账号或密码错误', lr.text) is not None:
+            if re.search('帐号或密码不正确|账号或密码错误', lr.text) is not None:
                 log.warn(username + '账号或密码错误！')
                 return -1
             else:
                 log.warn(username + '其他登录错误！')
+                log.warn(lr.url + '\n' + lr.text)
                 return -2
         return login_json['data']['mycard']['id']
     else:
@@ -293,6 +294,7 @@ if __name__ == '__main__':
         for account in mmdb.SjUser.select():
             username = account.maimai_account
             password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
+            print(username, password)
             check_login()
             time.sleep(10)
         print('账户检测完毕！')
@@ -310,7 +312,7 @@ if __name__ == '__main__':
             if current_id > 0:
                 cn = count_contact(current_id)
                 crawl_contact(cn, current_id)
-            time.sleep(10)
+            time.sleep(5)
         print('好友列表爬取完毕！')
         log.info('好友列表爬取完毕！')
 
