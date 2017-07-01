@@ -121,8 +121,6 @@ def crawl_contact(total, login_id):
                 init_basic(basic)
         else:
             break
-    print(username + '的好友爬取结束！')
-    log.info(username + '的好友爬取结束！')
 
 
 def crawl_detail(mm_id):
@@ -315,6 +313,8 @@ if __name__ == '__main__':
                 cn = count_contact(current_id)
                 crawl_contact(cn, current_id)
             time.sleep(5)
+            print(username + '的好友爬取结束！')
+            log.info(username + '的好友爬取结束！')
         print('好友列表爬取完毕！')
         log.info('好友列表爬取完毕！')
 
