@@ -17,7 +17,7 @@ class BaseModel(Model):
 
 class SjBasic(BaseModel):
     name = CharField(null=True)
-    true = IntegerField(db_column='true_id')
+    mm = IntegerField(db_column='mm_id', unique=True)
     birthday = CharField(null=True)
     province = CharField(null=True)
     city = CharField(null=True)
@@ -38,20 +38,19 @@ class SjBasic(BaseModel):
 
 
 class SjCareer(BaseModel):
-    resume = IntegerField(db_column='resume_id')
+    mm = IntegerField(db_column='mm_id')
     start_time = IntegerField(null=True)
     end_time = IntegerField(null=True)
     company = CharField(null=True)
     position = CharField(null=True)
     description = CharField(null=True)
 
-
     class Meta:
         db_table = 'sj_career'
 
 
 class SjEducation(BaseModel):
-    resume = IntegerField(db_column='resume_id')
+    mm = IntegerField(db_column='mm_id')
     school = CharField(null=True)
     degree = CharField(null=True)
     major = CharField(null=True)

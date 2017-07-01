@@ -5,14 +5,65 @@ import time
 import decrypt
 import maimai_model as mmdb
 import configparser
+from logbook import Logger, FileHandler
+import sys
+
+# 日志
+logfile = 'logs/maimai/{0}.log'.format(
+    time.strftime("%Y_%m_%d", time.localtime()))
+FileHandler(logfile).push_application()
+log = Logger('maimai')
 
 config = configparser.ConfigParser()
 config.read('db.config')
+
+# 当前用户账号信息
+account = None
 username = config['maimai']['username']
 password = config['maimai']['password']
-
-
+# 会话
 s = requests.Session()
+
+
+def check_login():
+    """
+    检测当前账号
+    :return:
+    """
+    login_id = login()
+    if login_id > 0:
+        account.mm = login_id
+        account.resume_count = count_contact(login_id)
+        account.status = 1
+        log.info(username + '账户可用')
+    else:
+        account.status = login_id
+    account.save()
+
+
+def login():
+    """
+    模拟登录
+    :return: 登录成功返回当前用户的mmid，否则失败码
+    """
+    login_url = 'https://maimai.cn/login'
+    login_data = dict(m=username, p=password, to='', pa='+86')
+    lr = s.post(login_url, data=login_data)
+
+    if lr.status_code == 200:
+        login_json = json_parse(lr.text)
+        if login_json is None:
+            if re.search('账号或密码错误', lr.text) is not None:
+                log.warn(username + '账号或密码错误！')
+                return -1
+            else:
+                log.warn(username + '其他登录错误！')
+                return -2
+        return login_json['data']['mycard']['id']
+    else:
+        log.warn(username + '被拒绝登录:' + str(lr.status_code))
+        log.warn(lr.url + '\n' + lr.text)
+        return -3
 
 
 def json_parse(json_str):
@@ -24,40 +75,13 @@ def json_parse(json_str):
     match = re.search('JSON\.parse\(\"(.+)\"\)', json_str, re.S)
     if match is not None:
         # 将\uxxxx格式字符串转码
-        json_str = re.sub(r'\\u\w{4}', 
+        json_str = re.sub(r'\\u\w{4}',
                           lambda x: x.group(0).encode()
                           .decode('unicode_escape'),
                           match.group(1))
         return json.loads(json_str)
     else:
         return
-
-
-def login(user_account=None):
-    """
-    模拟登录
-    :return: 登录者mm_id
-    """
-    login_url = 'https://maimai.cn/login'
-    login_data = dict(m=username, p=password, to='', pa='+86')
-    lr = s.post(login_url, data=login_data)
-
-    if lr.status_code == 200:
-        login_json = json_parse(lr.text)
-        if login_json is None:
-            if re.search('账号或密码错误', lr.text) is not None:
-                print(username + '账号或密码错误！')
-            else:
-                print(username + '其他登录错误！')
-            if user_account is not None:
-                set_user_status(user_account, -1)
-            return False
-        if user_account is not None:
-            set_user_status(user_account, 1)
-        return login_json['data']['mycard']['id']
-    else:
-        print('被拒绝登录！')
-        return False
 
 
 def count_contact(login_id):
@@ -81,27 +105,31 @@ def crawl_contact(total, login_id):
     """
     contact_list_url = 'https://maimai.cn/contact/inapp_dist1_list'
     contact_list_param = dict(jsononly=1)
-    i = 0
-    while i*15 < total:
+    for contact_list_param['start'] in range(0, total, 15):
         # 提取好友列表
-        contact_list_param['start'] = i * 15
         clr = s.get(contact_list_url, params=contact_list_param)
         if 'contacts' in clr.json()['data']:
             for contact in clr.json()['data']['contacts']:
-                basic = dict(true=contact['id'],
+                basic = dict(mm=contact['id'],
                              name=contact['name'],
                              last_company=contact['company'],
                              last_position=contact['position'],
+                             dist=contact['dist'],
                              status=0,
                              login=login_id)
                 init_basic(basic)
-            i += 1
         else:
             break
-    print('爬取联系人结束！')
+    print(username + '的好友爬取结束！')
+    log.info(username + '的好友爬取结束！')
 
 
 def crawl_detail(mm_id):
+    """
+    爬取详情
+    :param mm_id:
+    :return:
+    """
     json_only_param = dict(jsononly=1)
     detail_url = 'https://maimai.cn/contact/detail/%d' % mm_id
     dr = s.get(detail_url, params=json_only_param)
@@ -110,14 +138,16 @@ def crawl_detail(mm_id):
         if 'data' in detail:
             detail = detail['data']
         else:
-            print('详情数据缺失')
+            print(str(mm_id) + '详情数据缺失!')
+            log.warn(str(mm_id) + '详情数据缺失!')
             return False
     else:
-        print('被拒绝获取详情！')
+        log.warn(str(mm_id) + '被拒绝获取详情: ' + str(dr.status_code))
+        log.warn(dr.url + '\n' + dr.text)
         return False
     card = detail['card']
     uinfo = detail['uinfo']
-    basic = dict(true=mm_id,
+    basic = dict(mm=mm_id,
                  name=card.get('name', ''),
                  last_company=card.get('company', ''),
                  last_position=card.get('position', ''),
@@ -130,56 +160,52 @@ def crawl_detail(mm_id):
                  headline=uinfo.get('headline', ''),
                  status=1
                  )
-    rid = update(mmdb.SjBasic, basic, mmdb.SjBasic.true == mm_id)
+    rid = update(mmdb.SjBasic, basic, mmdb.SjBasic.mm == mm_id)
     if rid > 0:
         for work_exp in uinfo['work_exp']:
-            parse_work(work_exp, rid)
+            insert_work(work_exp, mm_id)
         for edu in uinfo['education']:
-            parse_edu(edu, rid)
+            insert_edu(edu, mm_id)
+        print(str(mm_id) + '的详情爬取结束！')
+        log.info(str(mm_id) + '的详情爬取结束！')
     else:
-        print('basic表更新失败')
+        log.warn(str(mm_id) + 'basic表更新失败')
 
 
-def parse_work(data, rid):
-    work_exp = dict(resume=rid,
+def insert_work(data, mm_id):
+    work_exp = dict(mm=mm_id,
                     company=data['company'],
                     position=data['position'],
                     description=data['description']
                     )
     if data['start_date'] is not None:
-        work_exp['start_time'] = time.mktime(time.strptime(data['start_date'], '%Y-%m'))
+        work_exp['start_time'] = time.mktime(
+            time.strptime(data['start_date'], '%Y-%m'))
         if data['end_date'] is None:
             work_exp['end_time'] = 2147483647
         else:
-            work_exp['end_time'] = time.mktime(time.strptime(data['end_date'], '%Y-%m'))
+            work_exp['end_time'] = time.mktime(
+                time.strptime(data['end_date'], '%Y-%m'))
     return insert(mmdb.SjCareer, work_exp)
 
 
-def parse_edu(data, rid):
+def insert_edu(data, mm_id):
     degrees = ['专科', '本科', '硕士', '博士', '博士后', '其他']
-    edu = dict(resume=rid,
+    edu = dict(mm=mm_id,
                school=data['school'],
                degree=degrees[data['degree'] if data['degree'] < 5 else 5],
                major=data['department'],
                description=data['description']
                )
     if data['start_date'] is not None:
-        edu['start_time'] = time.mktime(time.strptime(data['start_date'], '%Y-%m'))
+        edu['start_time'] = time.mktime(
+            time.strptime(data['start_date'], '%Y-%m'))
         if data['end_date'] is None:
             edu['end_time'] = 2147483647
         else:
-            edu['end_time'] = time.mktime(time.strptime(data['end_date'], '%Y-%m'))
+            edu['end_time'] = time.mktime(
+                time.strptime(data['end_date'], '%Y-%m'))
     return insert(mmdb.SjEducation, edu)
-
-
-def bulk_detail_crawl(n):
-    table = mmdb.SjBasic
-    basic = query(table, table.status > 0, n)
-    for b in basic:
-        user_account = get_accounts(b.true)
-        if user_account:
-            login_id = login(user_account)
-
 
 
 def init_basic(basic):
@@ -188,7 +214,7 @@ def init_basic(basic):
     :param basic:
     :return:
     """
-    if not is_exist(mmdb.SjBasic, basic['true']):
+    if not is_exist(mmdb.SjBasic, basic['mm']):
         now = int(time.time())
         basic['create_time'] = now
         basic['update_time'] = now
@@ -215,6 +241,8 @@ def update(table, values, condition=None):
     :param condition:
     :return:
     """
+    now = int(time.time())
+    values['update_time'] = now
     return table.update(**values).where(condition).execute()
 
 
@@ -226,16 +254,17 @@ def is_exist(table, mm_id):
     :return:
     """
     try:
-        rid = table.get(table.true == mm_id)
+        rid = table.get(table.mm == mm_id)
         return rid.id
     except mmdb.DoesNotExist:
         return False
 
 
-def get_accounts(mm_id=0):
+def get_accounts(mm_id=0, condition=True):
     """
     获取账号
     :param mm_id:
+    :param condition:
     :return:
     """
     if mm_id > 0:
@@ -244,44 +273,64 @@ def get_accounts(mm_id=0):
         except mmdb.DoesNotExist:
             return
     else:
-        result = mmdb.SjUser.select().where(mmdb.SjUser.status >= 0)
+        result = mmdb.SjUser.select().where(condition)
     return result
 
 
-def query(table, condition, page):
-    pnum = 15
+def query(table, condition, page=1):
+    pnum = 4
     try:
         return table.select().where(condition).paginate(page, pnum)
     except mmdb.DoesNotExist:
-        return False
-
-
-def set_user_status(user_account, status):
-    user_account.status = status
-    user_account.save()
-
-
-def crawl():
-    p = 1
-    login_id = login()
-    if login_id > 0:
-        total = count_contact(login_id)
-        crawl_contact(total, login_id)
-        mm_ids = query(mmdb.SjBasic,
-                       mmdb.SjBasic.login == login_id and
-                       mmdb.SjBasic.status >= 0, p)
-        for mm_id in mm_ids:
-            crawl_detail(mm_id.true)
+        return
 
 
 if __name__ == '__main__':
-    # 爬取联系人列表
-    # for account in get_accounts():
-    #     username = account.maimai_account
-    #     try:
-    #         password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
-    #         print(username, password)
-    #     except Exception:
-    #         print("解密出错！")
-    #     crawl()
-    crawl()
+    if 'check' in sys.argv:
+        # 批量检测所有账户是否正常
+        print('开始账户检测！')
+        log.info('开始账户检测！')
+        for account in mmdb.SjUser.select():
+            username = account.maimai_account
+            password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
+            check_login()
+        print('账户检测完毕！')
+        log.info('账户检测完毕！')
+
+    if 'dist1' in sys.argv:
+        # 爬取正常用户的好友列表
+        print('开始爬取正常用户的好友列表！')
+        log.info('开始爬取正常用户的好友列表！')
+        for account in get_accounts(condition=mmdb.SjUser.status > 0):
+            username = account.maimai_account
+            password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
+            # print(username, password)
+            current_id = login()
+            if current_id > 0:
+                cn = count_contact(current_id)
+                crawl_contact(cn, current_id)
+            time.sleep(10)
+        print('好友列表爬取完毕！')
+        log.info('好友列表爬取完毕！')
+
+    if 'detail' in sys.argv:
+        # 使用正常用户爬取好友详情
+        print('开始使用正常用户爬取好友详情！')
+        log.info('开始使用正常用户爬取好友详情！')
+        for account in get_accounts(condition=mmdb.SjUser.status > 0):
+            username = account.maimai_account
+            password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
+            print(username, password)
+            current_id = account.mm
+            if current_id > 0:
+                mms = query(mmdb.SjBasic,
+                            (mmdb.SjBasic.login == current_id) &
+                            (mmdb.SjBasic.status == 0) &
+                            (mmdb.SjBasic.dist == 1))
+                if mms is not None:
+                    login()
+                    for mm in mms:
+                        crawl_detail(mm.mm)
+                        time.sleep(1)
+        print('好友详情抓取完毕！')
+        log.info('好友详情抓取完毕！')
