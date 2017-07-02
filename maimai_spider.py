@@ -314,7 +314,12 @@ if __name__ == '__main__':
             list_start = (int(sys.argv[2])-1) * max_once
         except IndexError:
             list_start = 0
-        for account in get_accounts(condition=mmdb.SjUser.status > 0):
+        try:
+            accounts = get_accounts(
+                condition=mmdb.SjUser.maimai_account == sys.argv[3])
+        except IndexError:
+            accounts = get_accounts(condition=mmdb.SjUser.status > 0)
+        for account in accounts:
             s = requests.Session()
             username = account.maimai_account
             password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
@@ -328,7 +333,7 @@ if __name__ == '__main__':
                     crawl_contact(current_id, max_once, list_start)
                 else:
                     crawl_contact(current_id, cn, list_start)
-            time.sleep(5)
+            time.sleep(10)
             print(username + '的好友爬取结束！')
             log.info(username + '的好友爬取结束！')
         print('好友列表爬取完毕！')
