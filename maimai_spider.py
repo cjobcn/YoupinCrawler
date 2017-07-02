@@ -3,7 +3,7 @@ import re
 import json
 import time
 import decrypt
-import maimai_model as mmdb
+import maimai_db as mmdb
 import configparser
 from logbook import Logger, FileHandler
 import sys
@@ -353,15 +353,16 @@ if __name__ == '__main__':
             password = decrypt.think_decrypt(account.maimai_password, 'maimai1')
             print(username, password)
             current_id = account.mm
-            if current_id > 0:
-                mms = query(mmdb.SjBasic,
-                            (mmdb.SjBasic.login == current_id) &
-                            (mmdb.SjBasic.status == 0) &
-                            (mmdb.SjBasic.dist == 1))
-                if mms is not None:
-                    login()
+            mms = query(mmdb.SjBasic,
+                        (mmdb.SjBasic.login == current_id) &
+                        (mmdb.SjBasic.status == 0) &
+                        (mmdb.SjBasic.dist == 1))
+            if mms is not None:
+                current_id = login()
+                if current_id > 0:
                     for mm in mms:
                         crawl_detail(mm.mm)
                         time.sleep(1)
+            time.sleep(10)
         print('好友详情抓取完毕！')
         log.info('好友详情抓取完毕！')

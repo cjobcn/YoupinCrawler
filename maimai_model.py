@@ -1,78 +1,140 @@
-from peewee import *
-import configparser
+from maimai_db import *
+from logbook import Logger, FileHandler
+import time
 
-config = configparser.ConfigParser()
-config.read('db.config')
-database = MySQLDatabase('maimai', **dict(config['Mysql']))
-
-
-class UnknownField(object):
-    def __init__(self, *_, **__): pass
-
-
-class BaseModel(Model):
-    class Meta:
-        database = database
+# 日志
+logfile = 'logs/maimai/{0}.log'.format(
+    time.strftime("%Y_%m_%d", time.localtime()))
+FileHandler(logfile).push_application()
+log = Logger('maimai_model')
 
 
-class SjBasic(BaseModel):
-    name = CharField(null=True)
-    mm = IntegerField(db_column='mm_id', unique=True)
-    birthday = CharField(null=True)
-    province = CharField(null=True)
-    city = CharField(null=True)
-    mobile = CharField(null=True)
-    phone = CharField(null=True)
-    email = CharField(null=True)
-    last_company = CharField(null=True)
-    last_position = CharField(null=True)
-    status = IntegerField()
-    headline = CharField(null=True)
-    create_time = IntegerField()
-    update_time = IntegerField()
-    login = IntegerField(db_column='login_id', null=True)
-    dist = IntegerField()
-
-    class Meta:
-        db_table = 'sj_basic'
+def init_basic(data):
+    """
+    将联系人列表中的简要信息保存到basic表中
+    :param data:
+    :return:
+    """
+    basic = is_exist(SjBasic, data['mm'])
+    now = int(time.time())
+    if not basic:
+        data['create_time'] = now
+        data['update_time'] = now
+        return insert(SjBasic, data)
+    elif basic.dist > data['dist']:
+        basic.dist = data['dist']
+        basic.update_time = now
+        return basic.save()
+    else:
+        return False
 
 
-class SjCareer(BaseModel):
-    mm = IntegerField(db_column='mm_id')
-    start_time = IntegerField(null=True)
-    end_time = IntegerField(null=True)
-    company = CharField(null=True)
-    position = CharField(null=True)
-    description = CharField(null=True)
+def insert_work(data, mm_id):
+    """
+    插入工作经历
+    :param data:
+    :param mm_id:
+    :return:
+    """
+    if is_exist(SjCareer, mm_id):
+        return False
+    work_exp = dict(mm=mm_id,
+                    company=data.get('company', ''),
+                    position=data.get('position', ''),
+                    description=data.get('description', '')
+                    )
+    if data['start_date'] is not None:
+        work_exp['start_time'] = time.mktime(
+            time.strptime(data['start_date'], '%Y-%m'))
+        if data['end_date'] is None:
+            work_exp['end_time'] = 2147483647
+        else:
+            work_exp['end_time'] = time.mktime(
+                time.strptime(data['end_date'], '%Y-%m'))
+    return insert(SjCareer, work_exp)
 
-    class Meta:
-        db_table = 'sj_career'
+
+def insert_edu(data, mm_id):
+    if is_exist(SjEducation, mm_id):
+        return False
+    degrees = ['专科', '本科', '硕士', '博士', '博士后', '其他']
+    edu = dict(mm=mm_id,
+               school=data['school'],
+               degree=degrees[data['degree'] if data['degree'] < 5 else 5],
+               major=data.get('department', ''),
+               description=data.get('description', '')
+               )
+    if data['start_date'] is not None:
+        edu['start_time'] = time.mktime(
+            time.strptime(data['start_date'], '%Y-%m'))
+        if data['end_date'] is None:
+            edu['end_time'] = 2147483647
+        else:
+            edu['end_time'] = time.mktime(
+                time.strptime(data['end_date'], '%Y-%m'))
+    return insert(SjEducation, edu)
 
 
-class SjEducation(BaseModel):
-    mm = IntegerField(db_column='mm_id')
-    school = CharField(null=True)
-    degree = CharField(null=True)
-    major = CharField(null=True)
-    description = CharField(null=True)
-    start_time = IntegerField(null=True)
-    end_time = IntegerField(null=True)
+def is_exist(table, mm_id):
+    """
+    判断信息是否已经爬取(插入前判断)
+    :param table:
+    :param mm_id:
+    :return:
+    """
+    try:
+        rid = table.get(table.mm == mm_id)
+        return rid
+    except DoesNotExist:
+        return False
 
-    class Meta:
-        db_table = 'sj_education'
+
+def insert(table, values):
+    """
+    将对应的值插入到指定的表中
+    :param table:
+    :param values:
+    :return:
+    """
+    return table.insert(**values).execute()
 
 
-class SjUser(BaseModel):
-    cid = IntegerField(null=True)
-    resume_count = IntegerField(null=True)
-    now_count = IntegerField(null=True)
-    maimai_account = CharField(null=True, unique=True)
-    maimai_password = CharField(null=True)
-    mm = IntegerField(db_column='mm_id', null=True, index=True)
-    resume_multi = IntegerField(null=True)
-    status = IntegerField(null=True)
-    uid = IntegerField()
-    create_time = CharField(null=True)
+def update(table, values, condition=None):
+    """
+    更新
+    :param table:
+    :param values:
+    :param condition:
+    :return:
+    """
+    now = int(time.time())
+    values['update_time'] = now
+    return table.update(**values).where(condition).execute()
 
-    class Meta:
-        db_table = 'sj_user'
+
+def get_accounts(mm_account=None, condition=True):
+    """
+    获取账号
+    :param mm_account:
+    :param condition:
+    :return:
+    """
+    if mm_account is not None:
+        try:
+            if type(mm_account) == int:
+                result = SjUser.get(SjUser.mm == mm_account)
+            else:
+                result = SjUser.get(SjUser.maimai_account == mm_account)
+        except DoesNotExist:
+            return
+    else:
+        result = SjUser.select().where(condition)
+    return result
+
+
+def query(table, condition, page=1):
+    pnum = 100
+    try:
+        return table.select().where(condition).paginate(page, pnum)
+    except DoesNotExist:
+        return
