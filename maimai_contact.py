@@ -89,7 +89,6 @@ if __name__ == '__main__':
                             (mm_model.SjBasic.mm << search_result) &
                             (mm_model.SjBasic.status == 0)).order_by(mm_model.SjBasic.login):
                 account = mm_model.get_accounts(int(maimai_basic.login))
-                print(str(maimai_basic.id))
                 if account.mm != mm_login.account.mm:
                     time.sleep(10)
                     mm_login.account = account
