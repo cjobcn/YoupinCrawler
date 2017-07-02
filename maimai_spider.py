@@ -177,6 +177,8 @@ def crawl_detail(mm_id):
 
 
 def insert_work(data, mm_id):
+    if is_exist(mmdb.SjCareer, mm_id):
+        return 0
     work_exp = dict(mm=mm_id,
                     company=data['company'],
                     position=data['position'],
@@ -194,6 +196,8 @@ def insert_work(data, mm_id):
 
 
 def insert_edu(data, mm_id):
+    if is_exist(mmdb.SjEducation, mm_id):
+        return 0
     degrees = ['专科', '本科', '硕士', '博士', '博士后', '其他']
     edu = dict(mm=mm_id,
                school=data['school'],
