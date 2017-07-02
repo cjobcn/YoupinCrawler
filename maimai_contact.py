@@ -78,21 +78,24 @@ if __name__ == '__main__':
             condition=mm_model.SjUser.status > 0):
         mm_login.s = requests.Session()
         login_id = mm_login.login()
-        s = mm_login.s
-        for search_kw in search_keywords:
-            search_result = search_result | crawl_search(search_kw)
-        print(search_result)
-        log.info(search_result)
+        if login_id > 0:
+            s = mm_login.s
+            for search_kw in search_keywords:
+                search_result = search_result | crawl_search(search_kw)
+            print(search_result)
+            log.info(search_result)
 
-        for maimai_basic in mm_model.SjBasic.select().where(
-                        (mm_model.SjBasic.mm << search_result) &
-                        (mm_model.SjBasic.status == 0)).order_by(mm_model.SjBasic.login):
-            account = mm_model.get_accounts(int(maimai_basic.login))
-            if account.mm != mm_login.account.mm:
-                time.sleep(10)
-                mm_login.account = account
-                mm_login.s = requests.Session()
-                mm_login.login()
-            mm_detail.s = mm_login.s
-            mm_detail.crawl_detail(maimai_basic.mm)
-            time.sleep(1)
+            for maimai_basic in mm_model.SjBasic.select().where(
+                            (mm_model.SjBasic.mm << search_result) &
+                            (mm_model.SjBasic.status == 0)).order_by(mm_model.SjBasic.login):
+                account = mm_model.get_accounts(int(maimai_basic.login))
+                if account.mm != mm_login.account.mm:
+                    time.sleep(10)
+                    mm_login.account = account
+                    mm_login.s = requests.Session()
+                    mm_login.login()
+                mm_detail.s = mm_login.s
+                mm_detail.crawl_detail(maimai_basic.mm)
+                time.sleep(1)
+        else:
+            time.sleep(30)
