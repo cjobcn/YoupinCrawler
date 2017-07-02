@@ -326,7 +326,7 @@ if __name__ == '__main__':
             # print(username, password)
             cn = account.resume_count
             if list_start >= cn:
-                break
+                continue
             current_id = login()
             if current_id > 0:
                 if list_start + max_once < cn:
