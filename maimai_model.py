@@ -45,7 +45,7 @@ def insert_work(data, mm_id):
                     )
     if data['start_date'] is not None:
         work_exp['start_time'] = time.mktime(
-            time.strptime(data['start_date'], '%Y-%m'))
+            time.strptime(data['start_date'], '%Y-%m')) if data['start_date'] != '1970-1' else 0
         if data['end_date'] is None:
             work_exp['end_time'] = 2147483647
         else:
@@ -66,7 +66,7 @@ def insert_edu(data, mm_id):
                )
     if data['start_date'] is not None:
         edu['start_time'] = time.mktime(
-            time.strptime(data['start_date'], '%Y-%m'))
+            time.strptime(data['start_date'], '%Y-%m')) if data['start_date'] != '1970-1' else 0
         if data['end_date'] is None:
             edu['end_time'] = 2147483647
         else:
