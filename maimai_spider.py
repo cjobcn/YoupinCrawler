@@ -102,6 +102,7 @@ def crawl_contact(login_id, total, start=0):
     爬取联系人
     :param total:
     :param login_id:
+    :param start:
     :return:
     """
     contact_list_url = 'https://maimai.cn/contact/inapp_dist1_list'
@@ -109,6 +110,10 @@ def crawl_contact(login_id, total, start=0):
     for contact_list_param['start'] in range(start, total, 15):
         # 提取好友列表
         clr = s.get(contact_list_url, params=contact_list_param)
+        if 'data' not in clr.json():
+            log.warn('一次爬取人数超过限制')
+            log.warn(clr.text())
+            break
         if 'contacts' in clr.json()['data']:
             for contact in clr.json()['data']['contacts']:
                 basic = dict(mm=contact['id'],
