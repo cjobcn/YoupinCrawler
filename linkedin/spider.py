@@ -3,7 +3,7 @@ import yplog
 import requests
 import time
 
-log = yplog.YPLogger('spider')
+log = yplog.YPLogger('spider', __package__)
 
 
 def check_account(status=1):

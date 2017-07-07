@@ -4,15 +4,14 @@ import re
 import html
 from urllib.parse import unquote
 import json
-import configparser
+import ypconfig
 import yplog
 import decrypt
 from linkedin import contact
 
-config = configparser.ConfigParser()
-config.read('../db.config')
+config = ypconfig.config
 
-log = yplog.YPLogger('login')
+log = yplog.YPLogger('login', __package__)
 s = requests.Session()
 
 

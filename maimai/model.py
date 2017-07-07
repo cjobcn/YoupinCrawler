@@ -2,7 +2,7 @@ import time
 from maimai.db import *
 import yplog
 
-log = yplog.YPLogger('model')
+log = yplog.YPLogger('model', __package__)
 
 
 def init_basic(data):
@@ -120,7 +120,7 @@ def get_accounts(mm_account=None, condition=True):
             if type(mm_account) == int:
                 result = SjUser.get(SjUser.mm == mm_account)
             else:
-                result = SjUser.get(SjUser.maimai_account == mm_account)
+                result = SjUser.get(SjUser.username == mm_account)
         except DoesNotExist:
             return
     else:

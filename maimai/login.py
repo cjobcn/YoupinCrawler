@@ -9,7 +9,7 @@ config = configparser.ConfigParser()
 config.read('../db.config')
 
 # 日志
-log = yplog.YPLogger('login')
+log = yplog.YPLogger('login', __package__)
 s = requests.Session()
 
 
@@ -20,7 +20,8 @@ def login(account):
     """
     try:
         username = account.username
-        password = decrypt.think_decrypt(account.password, config['linkedin']['key'])
+        password = decrypt.think_decrypt(
+            account.password, config['linkedin']['key'])
     except AttributeError:
         username = config['linkedin']['username']
         password = config['linkedin']['password']

@@ -1,8 +1,7 @@
 from peewee import *
-import configparser
+import ypconfig
 
-config = configparser.ConfigParser()
-config.read('../db.config')
+config = ypconfig.config
 database = MySQLDatabase(config['linkedin']['database'],
                          **dict(config['Mysql']))
 
