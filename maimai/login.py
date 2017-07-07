@@ -21,10 +21,10 @@ def login(account):
     try:
         username = account.username
         password = decrypt.think_decrypt(
-            account.password, config['linkedin']['key'])
+            account.password, config['maimai']['key'])
     except AttributeError:
-        username = config['linkedin']['username']
-        password = config['linkedin']['password']
+        username = config['maimai']['username']
+        password = config['maimai']['password']
     login_url = 'https://maimai.cn/login'
     login_data = dict(m=username,
                       p=password,

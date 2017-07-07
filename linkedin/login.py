@@ -10,6 +10,7 @@ import decrypt
 from linkedin import contact
 
 config = ypconfig.config
+print(config)
 
 log = yplog.YPLogger('login', __package__)
 s = requests.Session()

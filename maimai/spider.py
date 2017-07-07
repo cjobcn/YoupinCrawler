@@ -22,14 +22,11 @@ def check_account(status=1):
     log.info('账户检测完毕！')
 
 
-def crawl_dist1():
+def crawl_dist1(n=1):
     log.info('开始爬取正常用户的好友列表！')
     # 一次获取最高好友数
     max_once = 3000
-    try:
-        list_start = (int(sys.argv[2]) - 1) * max_once
-    except IndexError:
-        list_start = 0
+    list_start = (n - 1) * max_once
     # 获取某个账户或所有正常账户
     try:
         accounts = model.get_accounts(
@@ -82,7 +79,11 @@ if __name__ == '__main__':
         check_account()
 
     if 'dist1' in sys.argv:
-        crawl_dist1()
+        try:
+            time_n = int(sys.argv[2])
+        except IndexError:
+            time_n = 1
+        crawl_dist1(time_n)
 
     if 'detail' in sys.argv:
         crawl_detail()
