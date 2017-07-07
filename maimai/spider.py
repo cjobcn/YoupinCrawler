@@ -72,7 +72,7 @@ def crawl_detail():
                 for mm in mms:
                     detail.crawl_detail(mm.mm)
                     time.sleep(1)
-        # time.sleep(10)
+        time.sleep(10)
     log.info('好友详情抓取完毕！')
 
 
