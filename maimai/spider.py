@@ -84,4 +84,5 @@ if __name__ == '__main__':
     if 'dist1' in sys.argv:
         crawl_dist1()
 
-    crawl_detail()
+    if 'detail' in sys.argv:
+        crawl_detail()

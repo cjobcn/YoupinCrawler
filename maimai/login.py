@@ -3,7 +3,10 @@ import re
 import json
 import decrypt
 import yplog
+import configparser
 
+config = configparser.ConfigParser()
+config.read('../db.config')
 
 # 日志
 log = yplog.YPLogger('login')
@@ -17,11 +20,8 @@ def login(account):
     """
     try:
         username = account.username
-        password = decrypt.think_decrypt(account.password, 'maimai1')
+        password = decrypt.think_decrypt(account.password, config['linkedin']['key'])
     except AttributeError:
-        import configparser
-        config = configparser.ConfigParser()
-        config.read('../db.config')
         username = config['linkedin']['username']
         password = config['linkedin']['password']
     login_url = 'https://maimai.cn/login'

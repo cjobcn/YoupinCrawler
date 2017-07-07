@@ -4,10 +4,13 @@ import re
 import html
 from urllib.parse import unquote
 import json
-
+import configparser
 import yplog
 import decrypt
 from linkedin import contact
+
+config = configparser.ConfigParser()
+config.read('../db.config')
 
 log = yplog.YPLogger('login')
 s = requests.Session()
@@ -36,11 +39,9 @@ def login(account):
     # 模拟登录
     try:
         username = account.username
-        password = decrypt.think_decrypt(account.password, 'linkedin1')
+        password = decrypt.think_decrypt(account.password,
+                                         config['linkedin']['key'])
     except AttributeError:
-        import configparser
-        config = configparser.ConfigParser()
-        config.read('../db.config')
         username = config['linkedin']['username']
         password = config['linkedin']['password']
     log.info('{0}准备登录'.format(username))

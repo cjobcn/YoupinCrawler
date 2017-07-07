@@ -3,7 +3,8 @@ import configparser
 
 config = configparser.ConfigParser()
 config.read('../db.config')
-database = MySQLDatabase('maimai', **dict(config['Mysql']))
+database = MySQLDatabase(config['maimai']['database'],
+                         **dict(config['Mysql']))
 
 
 class UnknownField(object):

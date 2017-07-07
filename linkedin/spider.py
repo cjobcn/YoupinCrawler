@@ -59,5 +59,6 @@ if __name__ == '__main__':
     import sys
     if 'check' in sys.argv:
         check_account()
+
     if 'contact' in sys.argv:
         crawl_contact()
