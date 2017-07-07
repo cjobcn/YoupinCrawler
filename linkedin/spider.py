@@ -1,22 +1,9 @@
-from linkedin import login, contact
+from linkedin import login, contact, model
 import yplog
-import linkedin.model as model
 import requests
 import time
 
 log = yplog.YPLogger('spider')
-
-
-# contact_num = contact.crawl_cnum()
-# print(str(contact_num))
-#
-# connection_list = contact.crawl_connections(0)
-# print(len(connection_list))
-#
-# for connection in connection_list:
-#     pub_id = connection['pub_id']
-#     data = contact.crawl_detail(pub_id)
-#     break
 
 
 def check_account(status=1):

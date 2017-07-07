@@ -1,11 +1,12 @@
-import yplog
-import decrypt
 import requests
 from bs4 import BeautifulSoup
 import re
 import html
 from urllib.parse import unquote
 import json
+
+import yplog
+import decrypt
 from linkedin import contact
 
 log = yplog.YPLogger('login')
@@ -30,6 +31,7 @@ def login(account):
     else:
         log.warn("""访问登录页面被拒绝:{0}
         {1}""".format(lr.status_code, lr.text))
+        log.warn(lr.url + '\n' + lr.text)
         return -3
     # 模拟登录
     try:
@@ -73,6 +75,7 @@ def login(account):
     else:
         log.warn("""登录请求被拒绝:{0}
                 {1}""".format(lr.status_code, lr.text))
+        log.warn(lsr.url + '\n' + lsr.text)
         return -2
 
 

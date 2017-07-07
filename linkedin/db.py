@@ -1,6 +1,9 @@
 from peewee import *
+import configparser
 
-database = MySQLDatabase('linked', **{'user': 'root'})
+config = configparser.ConfigParser()
+config.read('../db.config')
+database = MySQLDatabase('linked', **dict(config['Mysql']))
 
 
 class UnknownField(object):

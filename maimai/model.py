@@ -1,12 +1,8 @@
-from maimai_db import *
-from logbook import Logger, FileHandler
 import time
+from maimai.db import *
+import yplog
 
-# 日志
-logfile = 'logs/maimai/{0}.log'.format(
-    time.strftime("%Y_%m_%d", time.localtime()))
-FileHandler(logfile).push_application()
-log = Logger('maimai_model')
+log = yplog.YPLogger('model')
 
 
 def init_basic(data):

@@ -2,7 +2,7 @@ from peewee import *
 import configparser
 
 config = configparser.ConfigParser()
-config.read('db.config')
+config.read('../db.config')
 database = MySQLDatabase('maimai', **dict(config['Mysql']))
 
 
@@ -66,8 +66,8 @@ class SjUser(BaseModel):
     cid = IntegerField(null=True)
     resume_count = IntegerField(null=True)
     now_count = IntegerField(null=True)
-    maimai_account = CharField(null=True, unique=True)
-    maimai_password = CharField(null=True)
+    username = CharField(db_column='maimai_account', null=True, unique=True)
+    password = CharField(db_column='maimai_password', null=True)
     mm = IntegerField(db_column='mm_id', null=True, index=True)
     resume_multi = IntegerField(null=True)
     status = IntegerField(null=True)
