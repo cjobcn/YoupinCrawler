@@ -108,12 +108,14 @@ def crawl_detail(pub_id, dist=1):
                            degree=data.get('degreeName', ''),
                            major=data.get('fieldOfStudy', ''),
                            activity=data.get('activities', ''),
+                           description=data.get('description', ''),
                            entity=data.get('entityUrn', '').split(',')[1][0:-1])
                 education.append(edu)
             elif data['$type'] == 'com.linkedin.voyager.identity.profile.Position':
                 job = dict(company=data.get('companyName', ''),
                            city=data.get('locationName', ''),
                            position=data.get('title', ''),
+                           description=data.get('description', ''),
                            entity=data.get('entityUrn', '').split(',')[1][0:-1])
                 jobs.append(job)
             elif data['$type'] == 'com.linkedin.voyager.identity.profile.Project':

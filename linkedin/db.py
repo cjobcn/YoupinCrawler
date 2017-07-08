@@ -42,6 +42,7 @@ class SjCareer(BaseModel):
     linkedin = IntegerField(db_column='linkedin_id')
     position = CharField(null=True)
     start_time = IntegerField(null=True)
+    description = CharField(null=True)
 
     class Meta:
         db_table = 'sj_career'
@@ -55,6 +56,7 @@ class SjEducation(BaseModel):
     major = CharField(null=True)
     school = CharField(null=True)
     start_time = IntegerField(null=True)
+    description = CharField(null=True)
 
     class Meta:
         db_table = 'sj_education'
