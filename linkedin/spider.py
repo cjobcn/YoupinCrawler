@@ -22,11 +22,11 @@ def check_account(status=1):
     log.info('账户检测完毕！')
 
 
-def crawl_contact():
+def crawl_contact(n=1):
     log.info('开始爬取联系人！')
     max_count = model.SjUser.select(model.fn.Max(model.SjUser.resume_count)).scalar()
     count = 100
-    for start in range(0, max_count, count):
+    for start in range((n-1)*count, max_count, count):
         accounts = model.SjUser.select().where(
             model.SjUser.status == 1)
         for account in accounts:
