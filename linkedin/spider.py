@@ -25,7 +25,7 @@ def check_account(status=1):
 def crawl_contact(n=1):
     log.info('开始爬取联系人！')
     max_count = model.SjUser.select(model.fn.Max(model.SjUser.resume_count)).scalar()
-    count = 100
+    count = 200
     for start in range((n-1)*count, max_count, count):
         accounts = model.SjUser.select().where(
             model.SjUser.status == 1)
@@ -37,7 +37,7 @@ def crawl_contact(n=1):
             contact.client_page_id = me['clientPageId']
             contact.csrf_token = me['csrfToken']
             contact.s = login.s
-            connection_list = contact.crawl_connections()
+            connection_list = contact.crawl_connections(start, count)
             for connection in connection_list:
                 pub_id = connection['pub']
                 linkedin_id = connection['linkedin']
