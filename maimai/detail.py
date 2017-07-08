@@ -4,7 +4,7 @@ from maimai import login, model
 import yplog
 
 # 日志
-log = yplog.YPLogger('detail', __package__)
+log = yplog.YPLogger('detail', 'maimai')
 
 s = requests.Session()
 login_id = 0

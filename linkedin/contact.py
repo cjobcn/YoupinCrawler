@@ -4,7 +4,7 @@ import re
 import time
 import base64
 
-log = yplog.YPLogger('contact', __package__)
+log = yplog.YPLogger('contact', 'linkedin')
 s = requests.Session()
 client_page_id = 0
 csrf_token = ''

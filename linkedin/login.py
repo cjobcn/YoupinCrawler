@@ -10,9 +10,9 @@ import decrypt
 from linkedin import contact
 
 config = ypconfig.config
-print(config)
+# print(config)
 
-log = yplog.YPLogger('login', __package__)
+log = yplog.YPLogger('login', 'linkedin')
 s = requests.Session()
 
 
@@ -52,7 +52,7 @@ def login(account):
         if re.search('There were one or more errors in your submission', lsr.text):
             log.warn('{0}账户或密码错误！'.format(username))
             return -1
-        if re.search('Sign-In Verification', lsr.text):
+        if re.search('Sign-In Verification|Verify your identity', lsr.text):
             log.warn('{0}需要验证！'.format(username))
             return 2
         soup = BeautifulSoup(lsr.text, 'lxml'). \

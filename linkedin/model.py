@@ -2,7 +2,7 @@ import time
 from linkedin.db import *
 import yplog
 
-log = yplog.YPLogger('model', __package__)
+log = yplog.YPLogger('model', 'linkedin')
 
 
 def init_basic(data):

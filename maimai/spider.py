@@ -4,7 +4,7 @@ import requests
 import time
 import sys
 
-log = yplog.YPLogger('spider', __package__)
+log = yplog.YPLogger('spider', 'maimai')
 
 
 def check_account(status=1):

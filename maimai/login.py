@@ -9,7 +9,7 @@ config = configparser.ConfigParser()
 config.read('../db.config')
 
 # 日志
-log = yplog.YPLogger('login', __package__)
+log = yplog.YPLogger('login', 'maimai')
 s = requests.Session()
 
 

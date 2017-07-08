@@ -3,7 +3,7 @@ import yplog
 import requests
 import time
 
-log = yplog.YPLogger('spider', __package__)
+log = yplog.YPLogger('spider', 'linkedin')
 
 
 def check_account(status=1):
@@ -58,7 +58,7 @@ def crawl_contact():
 if __name__ == '__main__':
     import sys
     if 'check' in sys.argv:
-        check_account()
+        check_account(2)
 
     if 'contact' in sys.argv:
         crawl_contact()

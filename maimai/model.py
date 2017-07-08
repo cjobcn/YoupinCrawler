@@ -2,7 +2,7 @@ import time
 from maimai.db import *
 import yplog
 
-log = yplog.YPLogger('model', __package__)
+log = yplog.YPLogger('model', 'maimai')
 
 
 def init_basic(data):
