@@ -55,6 +55,17 @@ def crawl_contact():
         time.sleep(60)
     log.info('所有账户的联系人爬取完毕！')
 
+
+def crawl_detail(pub_id):
+    account=None
+    login.s = requests.session()
+    me = login.login(account)
+    contact.client_page_id = me['clientPageId']
+    contact.csrf_token = me['csrfToken']
+    contact.s = login.s
+    data = contact.crawl_detail(pub_id)
+    return data
+
 if __name__ == '__main__':
     import sys
     if 'check' in sys.argv:
@@ -62,3 +73,4 @@ if __name__ == '__main__':
 
     if 'contact' in sys.argv:
         crawl_contact()
+    crawl_detail('johnmcintosh')
