@@ -11,7 +11,7 @@ parse.add_argument('-a', '-action',
                    help='爬虫行为, check, dist1, detail, contact,..')
 parse.add_argument('-n', dest='n', type=int,
                    metavar='<n>', required=False,
-                   help='第<n>次爬取')
+                   help='第<n>次爬取或用户状态值')
 args = parse.parse_args()
 # print(args)
 
@@ -21,7 +21,7 @@ elif 'linkedin' in args.spider:
     from linkedin import spider
 
 if 'check' in args.action:
-    spider.check_account()
+    spider.check_account(args.n)
 elif 'dist1' in args.action:
     spider.crawl_dist1(args.n)
 elif 'detail' in args.action:
