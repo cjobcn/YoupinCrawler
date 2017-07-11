@@ -43,6 +43,8 @@ def crawl_contact(n=1):
                 linkedin_id = connection['linkedin']
                 if not model.is_exist(model.SjBasic, linkedin_id):
                     data = contact.crawl_detail(pub_id)
+                    if not data:
+                        continue
                     model.init_basic(data['basic'])
                     for job in data['career']:
                         model.insert_work(job, linkedin_id)
@@ -73,4 +75,4 @@ if __name__ == '__main__':
 
     if 'contact' in sys.argv:
         crawl_contact()
-    crawl_detail('johnmcintosh')
+    crawl_detail('宇泽-徐-3510b8b7')

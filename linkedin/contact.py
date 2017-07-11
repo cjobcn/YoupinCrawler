@@ -141,6 +141,9 @@ def crawl_detail(pub_id, dist=1):
         for i, edu in enumerate(projects):
             projects[i] = parse_time(edu, time_period)
         basic['skills'] = ','.join(basic['skills'])
+    else:
+        log.info('该会员无法访问:{0}'.format(pr.status_code))
+        return False
 
     contact_url = home_url + '/voyager/api/identity/profiles/{0}/profileContactInfo'.format(pub_id)
     headers['X-li-page-instance'] = 'urn:li:page:page:d_flagship3_profile_view_base;{0}'.format(client_page_id)
