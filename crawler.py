@@ -27,4 +27,4 @@ elif 'dist1' in args.action:
 elif 'detail' in args.action:
     spider.crawl_detail()
 elif 'contact' in args.action:
-    spider.crawl_contact(args.n)
+    spider.crawl_contact(args.n if args.n is not None else 1)
