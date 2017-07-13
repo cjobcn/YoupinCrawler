@@ -175,7 +175,7 @@ def parse_time(entity, period):
     del entity['entity']
     if start_time != 0:
         # 因为使用时间戳，年份1970是最小的
-        if start_time[0] < 1970:
+        if start_time[0] <= 1970:
             start_time = 0
         else:
             start_time = int(time.mktime(start_time))
