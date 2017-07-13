@@ -3,10 +3,9 @@ import re
 import json
 import decrypt
 import yplog
-import configparser
+import ypconfig
 
-config = configparser.ConfigParser()
-config.read('../db.config')
+config = ypconfig.config
 
 # 日志
 log = yplog.YPLogger('login', 'maimai')
