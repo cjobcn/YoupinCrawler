@@ -180,7 +180,10 @@ def parse_time(entity, period):
         else:
             start_time = int(time.mktime(start_time))
     if end_time != up_to_now and end_time != 0:
-        end_time = int(time.mktime(end_time))
+        if end_time[0] <= 1970:
+            end_time = 0
+        else:
+            end_time = int(time.mktime(end_time))
     entity['start_time'] = start_time
     entity['end_time'] = end_time
     return entity
