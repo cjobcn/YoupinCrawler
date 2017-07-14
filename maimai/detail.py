@@ -50,9 +50,9 @@ def crawl_detail(mm_id):
     rid = model.update(model.SjBasic, basic,
                        model.SjBasic.mm == mm_id)
     if rid > 0:
-        for work_exp in uinfo['work_exp']:
+        for work_exp in uinfo.get('work_exp', []):
             model.insert_work(work_exp, mm_id)
-        for edu in uinfo['education']:
+        for edu in uinfo.get('education', []):
             model.insert_edu(edu, mm_id)
         log.info(str(mm_id) + '的详情爬取结束！')
     else:
