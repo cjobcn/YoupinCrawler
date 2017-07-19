@@ -16,7 +16,7 @@ log = yplog.YPLogger('login', 'linkedin')
 s = requests.Session()
 
 
-def login(account):
+def login(account=None):
     """
     模拟登录
     :param account:
@@ -80,7 +80,7 @@ def login(account):
         return -2
 
 
-def check_login(account):
+def check_login(account=None):
     """
     检测当前账号
     :return:
@@ -104,7 +104,6 @@ def verify(account):
     pass
 
 
-
 if __name__ == "__main__":
     s = requests.Session()
-    login(None)
+    login()
