@@ -98,3 +98,13 @@ def check_login(account):
     else:
         account.status = me
     account.save()
+
+
+def verify(account):
+    pass
+
+
+
+if __name__ == "__main__":
+    s = requests.Session()
+    login(None)

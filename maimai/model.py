@@ -67,7 +67,7 @@ def insert_edu(data, mm_id):
             edu['end_time'] = 2147483647
         else:
             edu['end_time'] = time.mktime(
-                time.strptime(data['end_date'], '%Y-%m'))
+                time.strptime(data['end_date'], '%Y-%m')) if data['start_date'] != '1970-1' else 0
     return insert(SjEducation, edu)
 
 
