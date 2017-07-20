@@ -12,7 +12,9 @@ maimai_dir = "G:/ShareFolder/maimai/"
 
 
 def get_login_id(username):
-    return model.get_accounts(username).mm
+    mm = model.get_accounts(username)
+    if mm is not None:
+        return mm.mm
 
 
 def bulk_parse():
@@ -28,7 +30,7 @@ def bulk_parse():
                     if detail:
                         parse(detail, login_id)
                 except Exception:
-                    log.error(json_file + '解码错误！')
+                    log.error(json_file + '出错！')
 
 
 def parse(detail, login_id):
