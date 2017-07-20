@@ -62,7 +62,7 @@ def parse(detail, login_id):
             model.insert_edu(edu, mm_id)
         log.info(str(mm_id) + '的详情解析结束！')
     else:
-        log.warn(str(mm_id) + 'basic表更新失败')
+        log.info(str(mm_id) + '已存在')
 
 
 if __name__ == '__main__':
