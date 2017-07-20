@@ -1,6 +1,8 @@
-from logbook import Logger, FileHandler, StderrHandler
+import logbook
 import time
 import os.path
+
+logbook.set_datetime_format("local")
 
 
 class YPLogger(object):
@@ -12,9 +14,9 @@ class YPLogger(object):
             root_path, package,
             time.strftime("%Y_%m_%d", time.localtime()))
 
-        self.stderr_handler = StderrHandler()
-        self.file_handler = FileHandler(logfile, level='INFO', bubble=True)
-        self.yp_log = Logger(name)
+        self.stderr_handler = logbook.StderrHandler()
+        self.file_handler = logbook.FileHandler(logfile, level='INFO', bubble=True)
+        self.yp_log = logbook.Logger(name)
 
     def info(self, info_str):
         with self.stderr_handler:
