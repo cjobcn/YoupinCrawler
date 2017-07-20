@@ -27,7 +27,7 @@ def bulk_parse():
                     detail = json.load(f).get('data', '')
                     if detail:
                         parse(detail, login_id)
-                except json.decoder.JSONDecodeError:
+                except Exception:
                     log.error(json_file + '解码错误！')
 
 
