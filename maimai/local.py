@@ -12,7 +12,7 @@ maimai_dir = "G:/ShareFolder/maimai/"
 
 
 def get_login_id(username):
-    return model.get_accounts(username)
+    return model.get_accounts(username).mm
 
 
 def bulk_parse():
@@ -23,9 +23,12 @@ def bulk_parse():
             with open(os.path.join(
                     detail_dir, json_file), 'r',
                     encoding='utf-8') as f:
-                detail = json.load(f).get('data', '')
-                if detail:
-                    parse(detail, login_id)
+                try:
+                    detail = json.load(f).get('data', '')
+                    if detail:
+                        parse(detail, login_id)
+                except json.decoder.JSONDecodeError:
+                    log.error(json_file + '解码错误！')
 
 
 def parse(detail, login_id):
