@@ -28,3 +28,6 @@ elif 'detail' in args.action:
     spider.crawl_detail()
 elif 'contact' in args.action:
     spider.crawl_contact(args.n if args.n is not None else 1)
+elif 'local' in args.action:
+    from maimai import local
+    local.bulk_parse()
