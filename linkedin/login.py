@@ -172,7 +172,7 @@ def cache_session(username, params):
 def is_expired(path):
     mtime = os.path.getmtime(path)
     current_time = time.time()
-    expire_time = 10 * 600
+    expire_time = 5 * 60
     return current_time - mtime > expire_time
 
 if __name__ == "__main__":
