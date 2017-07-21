@@ -1,6 +1,6 @@
 import logbook
 import time
-import os.path
+import os
 
 logbook.set_datetime_format("local")
 
@@ -9,9 +9,13 @@ class YPLogger(object):
 
     def __init__(self, name, package):
         root_path = os.path.dirname(__file__)
+        log_dir = '{0}\\{1}\\logs\\'.format(
+            root_path, package)
+        if not os.path.isdir(log_dir):
+            os.mkdir(log_dir)
         # 日志文件名
-        logfile = '{0}\\{1}\\logs\\{2}.log'.format(
-            root_path, package,
+        logfile = '{0}{1}.log'.format(
+            log_dir,
             time.strftime("%Y_%m_%d", time.localtime()))
 
         self.stderr_handler = logbook.StderrHandler()

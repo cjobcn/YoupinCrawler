@@ -59,9 +59,8 @@ def crawl_contact(n=1):
 
 
 def crawl_detail(pub_id):
-    account=None
     login.s = requests.session()
-    me = login.login(account)
+    me = login.login()
     contact.client_page_id = me['clientPageId']
     contact.csrf_token = me['csrfToken']
     contact.s = login.s

@@ -21,10 +21,13 @@ s = requests.Session()
 root_path = os.path.dirname(__file__)
 cache_dir = os.path.join(root_path, 'sessions')
 
-def login(account=None):
+
+def login(account=None, username='', password=''):
     """
     模拟登录
     :param account:
+    :param username:
+    :param password:
     :return:
     """
     login_url = 'https://www.linkedin.com/uas/login'
@@ -43,8 +46,9 @@ def login(account=None):
         return -3
     # 模拟登录
     try:
-        username = account.username
-        password = decrypt.think_decrypt(account.password,
+        if username == '':
+            username = account.username
+            password = decrypt.think_decrypt(account.password,
                                          config['linkedin']['key'])
     except AttributeError:
         username = config['linkedin']['username']
@@ -62,29 +66,33 @@ def login(account=None):
             params = get_verify_params(lsr.text)
             cache_session(username, params)
             return 2
-        soup = BeautifulSoup(lsr.text, 'lxml'). \
-            find('meta', attrs={'name': 'clientPageInstanceId'})
-        client_page_id = soup['content']
-        text = unquote(html.unescape(lsr.text).encode(lsr.encoding).decode())
-        soup = BeautifulSoup(text, "lxml")
-        soup = soup.find('code', text=re.compile(r'"com.linkedin.voyager.common.Me"'))
-        me = json.loads(soup.get_text())
-        linkedin_id = pub_id = 0
-        for item in me['included']:
-            if item['$type'] == 'com.linkedin.voyager.identity.shared.MiniProfile':
-                linkedin_id = item.get('objectUrn', '').split(':')[-1]
-                pub_id = item['publicIdentifier']
-                break
-        log.info('{0}登录成功'.format(username))
-        return {'clientPageId': client_page_id,
-                'csrfToken' :csrfToken,
-                'linkedin': linkedin_id,
-                'pub_id': pub_id}
+        return parse_login_success(lsr, username, csrfToken)
     else:
         log.warn("""登录请求被拒绝:{0}
                 {1}""".format(lr.status_code, lr.text))
         log.warn(lsr.url + '\n' + lsr.text)
         return -2
+
+
+def parse_login_success(response, username, csrfToken):
+    soup = BeautifulSoup(response.text, 'lxml'). \
+        find('meta', attrs={'name': 'clientPageInstanceId'})
+    client_page_id = soup['content']
+    text = unquote(html.unescape(response.text).encode(response.encoding).decode())
+    soup = BeautifulSoup(text, "lxml")
+    soup = soup.find('code', text=re.compile(r'"com.linkedin.voyager.common.Me"'))
+    me = json.loads(soup.get_text())
+    linkedin_id = pub_id = 0
+    for item in me['included']:
+        if item['$type'] == 'com.linkedin.voyager.identity.shared.MiniProfile':
+            linkedin_id = item.get('objectUrn', '').split(':')[-1]
+            pub_id = item['publicIdentifier']
+            break
+    log.info('{0}登录成功'.format(username))
+    return {'clientPageId': client_page_id,
+            'csrfToken': csrfToken,
+            'linkedin': linkedin_id,
+            'pub_id': pub_id}
 
 
 def check_login(account):
@@ -135,12 +143,12 @@ def verify(username, v_code, params):
             log.warn(username + '验证码无效')
             params = get_verify_params(vr.text)
             cache_session(username, params)
-            return False
+            return -1
         elif re.search('too much time went by', vr.text):
             log.warn(username + '登录超时')
-            return False
+            return -2
         log.info(username + '验证通过')
-        return 1
+        return parse_login_success(vr, username, params['csrfToken'])
     else:
         log.warn("""登录请求被拒绝:{0}
                         {1}""".format(vr.status_code, vr.text))
@@ -163,6 +171,8 @@ def get_session(username):
 
 
 def cache_session(username, params):
+    if not os.path.isdir(cache_dir):
+        os.mkdir(cache_dir)
     cache_path = os.path.join(
         cache_dir, base64.urlsafe_b64encode(username.encode()).decode())
     with open(cache_path, 'wb') as f:
