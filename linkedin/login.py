@@ -8,13 +8,18 @@ import ypconfig
 import yplog
 import decrypt
 from linkedin import contact
+import pickle
+import os
+import base64
+import time
 
 config = ypconfig.config
 # print(config)
 
 log = yplog.YPLogger('login', 'linkedin')
 s = requests.Session()
-
+root_path = os.path.dirname(__file__)
+cache_dir = os.path.join(root_path, 'sessions')
 
 def login(account=None):
     """
@@ -54,6 +59,8 @@ def login(account=None):
             return -1
         if re.search('Sign-In Verification|Verify your identity', lsr.text):
             log.warn('{0}需要验证！'.format(username))
+            params = get_verify_params(lsr.text)
+            cache_session(username, params)
             return 2
         soup = BeautifulSoup(lsr.text, 'lxml'). \
             find('meta', attrs={'name': 'clientPageInstanceId'})
@@ -80,7 +87,7 @@ def login(account=None):
         return -2
 
 
-def check_login(account=None):
+def check_login(account):
     """
     检测当前账号
     :return:
@@ -100,10 +107,73 @@ def check_login(account=None):
     account.save()
 
 
-def verify(account):
-    pass
+def get_verify_params(response):
+    soup = BeautifulSoup(response, "lxml")
+    dts = soup.find('input', attrs={'name': 'dts'})['value']
+    security_challenge_id = soup.find(
+        'input', attrs={'name': 'security-challenge-id'})['value']
+    origSourceAlias = soup.find(
+        'input', attrs={'name': 'origSourceAlias'})['value']
+    csrfToken = soup.find(
+        'input', attrs={'name': 'csrfToken'})['value']
+    sourceAlias = soup.find(
+        'input', attrs={'name': 'sourceAlias'})['value']
+    return {'signin': '提交',
+            'security-challenge-i': security_challenge_id,
+            'dts': dts,
+            'origSourceAlias': origSourceAlias,
+            'csrfToken': csrfToken,
+            'sourceAlias': sourceAlias}
 
+
+def verify(username, v_code, params):
+    verify_url = 'https://www.linkedin.com/uas/ato-pin-challenge-submit'
+    params['PinVerificationForm_pinParam'] = v_code
+    vr = s.post(verify_url, data=params)
+    if vr.status_code == 200:
+        if re.search('The verification code you entered isn\'t valid', vr.text):
+            log.warn(username + '验证码无效')
+            params = get_verify_params(vr.text)
+            cache_session(username, params)
+            return False
+        elif re.search('too much time went by', vr.text):
+            log.warn(username + '登录超时')
+            return False
+
+
+def get_session(username):
+    cache_path = os.path.join(
+        cache_dir, base64.urlsafe_b64encode(username.encode()).decode())
+    if os.path.isfile(cache_path):
+        if not is_expired(cache_path):
+            with open(cache_path, 'rb') as f:
+                return pickle.load(f)
+        else:
+            log.warn(username + '会话缓存已过期！')
+            return False
+    else:
+        log.warn(username + '会话缓存不存在！')
+        return False
+
+
+def cache_session(username, params):
+    cache_path = os.path.join(
+        cache_dir, base64.urlsafe_b64encode(username.encode()).decode())
+    with open(cache_path, 'wb') as f:
+        pickle.dump(dict(session=s, params=params), f)
+
+
+def is_expired(path):
+    mtime = os.path.getmtime(path)
+    current_time = time.time()
+    expire_time = 10 * 600
+    return current_time - mtime > expire_time
 
 if __name__ == "__main__":
     s = requests.Session()
-    login()
+    # login()
+    sessionInfo = get_session(config['linkedin']['username'])
+    s = sessionInfo['session']
+    verify_params = sessionInfo['params']
+    verify(config['linkedin']['username'], 12345, verify_params)
+
