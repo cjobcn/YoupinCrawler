@@ -139,6 +139,12 @@ def verify(username, v_code, params):
         elif re.search('too much time went by', vr.text):
             log.warn(username + '登录超时')
             return False
+        log.info(username + '验证通过')
+        return 1
+    else:
+        log.warn("""登录请求被拒绝:{0}
+                        {1}""".format(vr.status_code, vr.text))
+        return False
 
 
 def get_session(username):
