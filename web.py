@@ -22,16 +22,16 @@ def lkd_login():
     login.s = requests.session()
     me = login.login(username=username, password=password)
     if me == -1:
-        return jsonify(dict(status=-2,
+        return jsonify(dict(status=1401,
                             error='密码或账号错误！'))
     elif me == -2:
-        return jsonify(dict(status=-3,
+        return jsonify(dict(status=1402,
                             error='被拒绝登录！'))
     elif me == 2:
-        return jsonify(dict(status=2,
+        return jsonify(dict(status=1403,
                             error='需要输入验证码！'))
     else:
-        return jsonify(dict(status=1,
+        return jsonify(dict(status=1200,
                             data=me))
 
 
@@ -50,13 +50,13 @@ def lkd_verify():
     verify_params = sessionInfo['params']
     me = login.verify(username, v_code, verify_params)
     if me == -1:
-        return jsonify(dict(status=-1,
+        return jsonify(dict(status=1404,
                             error='验证码无效！'))
     elif me == -2:
-        return jsonify(dict(status=-2,
+        return jsonify(dict(status=1405,
                             error='登录超时！'))
     else:
-        return jsonify(dict(status=1,
+        return jsonify(dict(status=1200,
                             data=me))
 
 if __name__ == '__main__':
