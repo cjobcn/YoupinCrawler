@@ -29,7 +29,7 @@ def lkd_login():
                             error='被拒绝登录！'))
     elif me == 2:
         return jsonify(dict(status=2,
-                            data='需要输入验证码！'))
+                            error='需要输入验证码！'))
     else:
         return jsonify(dict(status=1,
                             data=me))
@@ -51,14 +51,14 @@ def lkd_verify():
     me = login.verify(username, v_code, verify_params)
     if me == -1:
         return jsonify(dict(status=-1,
-                            data='验证码无效！'))
+                            error='验证码无效！'))
     elif me == -2:
         return jsonify(dict(status=-2,
-                            data='登录超时！'))
+                            error='登录超时！'))
     else:
         return jsonify(dict(status=1,
                             data=me))
 
 if __name__ == '__main__':
-    app.debug = True
+    # app.debug = True
     app.run()
