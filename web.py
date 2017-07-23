@@ -40,11 +40,11 @@ def lkd_verify():
     username = request.args.get('username', '')
     v_code = request.args.get('vCode', '')
     if v_code == '' or username == '':
-        return jsonify(dict(status=-1, error='账号和验证码不能为空！'))
+        return jsonify(dict(status=1407, error='账号和验证码不能为空！'))
     from linkedin import login
     sessionInfo = login.get_session(username)
     if not sessionInfo:
-        return jsonify(dict(status=-3,
+        return jsonify(dict(status=1406,
                             data='登录出问题，请重新登录！'))
     login.s = sessionInfo['session']
     verify_params = sessionInfo['params']
