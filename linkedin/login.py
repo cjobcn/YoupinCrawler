@@ -148,6 +148,7 @@ def verify(username, v_code, params):
             log.warn(username + '登录超时')
             return -2
         log.info(username + '验证通过')
+        log.debug(vr.text)
         return parse_login_success(vr, username, params['csrfToken'])
     else:
         log.warn("""登录请求被拒绝:{0}
