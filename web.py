@@ -36,8 +36,7 @@ def lkd_login():
             response = jsonify(dict(status=1200,
                                     data=me))
     response = make_response(response)
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'POST'
+    response = cross_site(response)
     return response
 
 
@@ -67,7 +66,12 @@ def lkd_verify():
                 response = jsonify(dict(status=1200,
                                         data=me))
     response = make_response(response)
-    response.headers['Access-Control-Allow-Origin'] = '*'
+    response = cross_site(response)
+    return response
+
+
+def cross_site(response):
+    response.headers['Access-Control-Allow-Origin'] = 'http://youpinsh.cn'
     response.headers['Access-Control-Allow-Methods'] = 'POST'
     return response
 
