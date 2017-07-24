@@ -11,10 +11,10 @@ def hello_world():
 
 @app.route('/linkedin/login', methods=['POST'])
 def lkd_login():
-    username = request.args.get('username', '')
-    password = request.args.get('password', '')
+    username = request.form.get('username', '')
+    password = request.form.get('password', '')
     if password == '' or username == '':
-        response = jsonify(dict(status=-1, error='账号和密码不能为空！'))
+        response = jsonify(dict(status=1409, error='账号和密码不能为空！'))
     else:
         from linkedin import login
         login.s = requests.session()
@@ -42,8 +42,8 @@ def lkd_login():
 
 @app.route('/linkedin/verify', methods=['POST'])
 def lkd_verify():
-    username = request.args.get('username', '')
-    v_code = request.args.get('vCode', '')
+    username = request.form.get('username', '')
+    v_code = request.form.get('vCode', '')
     if v_code == '' or username == '':
         response = jsonify(dict(status=1407, error='账号和验证码不能为空！'))
     else:
