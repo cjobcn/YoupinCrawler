@@ -18,6 +18,19 @@
 |`error`|string |错误信息 |
 |`data`|object|正确信息|
 
+#### 登录成功返回值
+```
+{
+    "data": {
+        "clientPageId": "cph42deJR1W/PjrWp4BdNQ==",
+        "csrfToken": "ajax:5441489642830661894",
+        "linkedin": "527920225",
+        "pub_id": "karl-481971128"
+    },
+    "status": 1200
+}
+```
+
 ## 1.2 linkedin验证码验证
 #### 接口：
 > `/linkedin/verify`
@@ -49,3 +62,5 @@
 |`1406` | 登录出问题，请重新登录！ |
 |`1407` | 账号和验证码不能为空！ |
 |`1408` | 需要授权，请在隐私中关闭两步验证！|
+
+
