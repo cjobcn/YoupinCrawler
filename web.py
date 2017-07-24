@@ -20,6 +20,7 @@ def lkd_login():
 
     from linkedin import login
     login.s = requests.session()
+    # login.s.proxies = {'http': '123.240.124.97:80'}
     me = login.login(username=username, password=password)
     if me == -1:
         return jsonify(dict(status=1401,
