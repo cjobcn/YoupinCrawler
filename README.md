@@ -6,8 +6,9 @@
 - logbook
 - bs4
     - lxml
+- Flask
 
 安装命令：
 ```
-pip3 install PyMySQL, requests, peewee, logbook, bs4, lxml
+pip3 install PyMySQL, requests, peewee, logbook, bs4, lxml, Flask
 ```

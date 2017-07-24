@@ -66,6 +66,11 @@ def login(account=None, username='', password=''):
             params = get_verify_params(lsr.text)
             cache_session(username, params)
             return 2
+        if re.search('Please enter the verification code', lsr.text):
+            log.warn('{0}需要授权！'.format(username))
+            params = get_verify_params(lsr.text)
+            cache_session(username, params)
+            return 3
         return parse_login_success(lsr, username, csrfToken)
     else:
         log.warn("""登录请求被拒绝:{0}
@@ -126,16 +131,23 @@ def get_verify_params(response):
         'input', attrs={'name': 'csrfToken'})['value']
     sourceAlias = soup.find(
         'input', attrs={'name': 'sourceAlias'})['value']
-    return {'signin': '提交',
-            'security-challenge-i': security_challenge_id,
-            'dts': dts,
-            'origSourceAlias': origSourceAlias,
-            'csrfToken': csrfToken,
-            'sourceAlias': sourceAlias}
+    form_data = {'signin': '提交',
+                 'security-challenge-id': security_challenge_id,
+                 'dts': dts,
+                 'origSourceAlias': origSourceAlias,
+                 'csrfToken': csrfToken,
+                 'sourceAlias': sourceAlias}
+    if re.search('Please enter the verification code', response):
+        form_data['signin'] = '验证'
+        form_data['TwoStepVerificationForm_recognizeDevice'] = 'recognize'
+    return form_data
 
 
 def verify(username, v_code, params):
-    verify_url = 'https://www.linkedin.com/uas/ato-pin-challenge-submit'
+    if params['signin'] == '验证':
+        verify_url = 'https://www.linkedin.com/uas/two-step-verification-submit'
+    else:
+        verify_url = 'https://www.linkedin.com/uas/ato-pin-challenge-submit'
     params['PinVerificationForm_pinParam'] = v_code
     vr = s.post(verify_url, data=params)
     if vr.status_code == 200:
@@ -192,5 +204,5 @@ if __name__ == "__main__":
     sessionInfo = get_session(config['linkedin']['username'])
     s = sessionInfo['session']
     verify_params = sessionInfo['params']
-    verify(config['linkedin']['username'], 12345, verify_params)
+    verify(config['linkedin']['username'], 260627, verify_params)
 
