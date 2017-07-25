@@ -66,7 +66,7 @@ def login(account=None, username='', password=''):
             params = get_verify_params(lsr.text)
             cache_session(username, params)
             return 2
-        if re.search('Please enter the verification code', lsr.text):
+        if re.search('You are signing in from an unrecognized device', lsr.text):
             log.warn('{0}需要授权！'.format(username))
             params = get_verify_params(lsr.text)
             cache_session(username, params)
@@ -137,7 +137,7 @@ def get_verify_params(response):
                  'origSourceAlias': origSourceAlias,
                  'csrfToken': csrfToken,
                  'sourceAlias': sourceAlias}
-    if re.search('Please enter the verification code', response):
+    if re.search('You are signing in from an unrecognized device', response):
         form_data['signin'] = '验证'
         form_data['TwoStepVerificationForm_recognizeDevice'] = 'recognize'
     return form_data
