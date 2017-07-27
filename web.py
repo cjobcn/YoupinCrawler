@@ -33,6 +33,8 @@ def lkd_login():
             response = jsonify(dict(status=1408,
                                     error='需要授权，请在隐私中关闭两步验证！'))
         else:
+            num = get_cnum(login.s, me)
+            me['num'] = num
             response = jsonify(dict(status=1200,
                                     data=me))
     response = make_response(response)
@@ -63,6 +65,8 @@ def lkd_verify():
                 response = jsonify(dict(status=1405,
                                         error='登录超时！'))
             else:
+                num = get_cnum(login.s, me)
+                me['num'] = num
                 response = jsonify(dict(status=1200,
                                         data=me))
     response = make_response(response)
@@ -74,6 +78,15 @@ def cross_site(response):
     response.headers['Access-Control-Allow-Origin'] = 'http://youpinsh.cn'
     response.headers['Access-Control-Allow-Methods'] = 'POST'
     return response
+
+
+def get_cnum(session, me):
+    from linkedin import contact
+    contact.s = session
+    contact.client_page_id = me['clientPageId']
+    contact.csrf_token = me['csrfToken']
+    return contact.crawl_cnum()
+
 
 if __name__ == '__main__':
     # app.debug = True
