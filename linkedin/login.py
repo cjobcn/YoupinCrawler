@@ -112,6 +112,7 @@ def check_login(account):
         contact.s = s
         contact.client_page_id = me['clientPageId']
         contact.csrf_token = me['csrfToken']
+        account.new_count = account.resume_count
         account.resume_count = contact.crawl_cnum()
         account.status = 1
         log.info(account.username + '账户可用')
