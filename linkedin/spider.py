@@ -9,7 +9,9 @@ log = yplog.YPLogger('spider', 'linkedin')
 def check_account(status=1):
     # 批量检测所有账户是否正常
     log.info('开始账户检测！')
-    if type(status) == dict:
+    if status is None:
+        accounts = model.SjUser.select()
+    elif type(status) == dict:
         accounts = model.SjUser.select().where(
             model.SjUser.status << status)
     else:

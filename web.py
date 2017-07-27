@@ -32,6 +32,9 @@ def lkd_login():
         elif me == 3:
             response = jsonify(dict(status=1408,
                                     error='需要授权，请在隐私中关闭两步验证！'))
+        elif me == 4:
+            response = jsonify(dict(status=1410,
+                                    error='需要重置密码！'))
         else:
             num = get_cnum(login.s, me)
             me['num'] = num

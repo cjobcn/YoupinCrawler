@@ -62,6 +62,9 @@ def login(account=None, username='', password=''):
             log.warn('{0}账户或密码错误！'.format(username))
             return -1
         if re.search('Sign-In Verification|Verify your identity', lsr.text):
+            if re.search('Sorry, we need you to reset your password', lsr.text):
+                log.warn('{0}需要重置密码！'.format(username))
+                return 4
             log.warn('{0}需要验证！'.format(username))
             params = get_verify_params(lsr.text)
             cache_session(username, params)
@@ -71,6 +74,7 @@ def login(account=None, username='', password=''):
             params = get_verify_params(lsr.text)
             cache_session(username, params)
             return 3
+
         return parse_login_success(lsr, username, csrfToken)
     else:
         log.warn("""登录请求被拒绝:{0}
