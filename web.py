@@ -23,7 +23,7 @@ def lkd_login():
         if me == -1:
             response = jsonify(dict(status=1401,
                                     error='密码或账号错误！'))
-        elif me == -2:
+        elif me == -3:
             response = jsonify(dict(status=1402,
                                     error='被拒绝登录！'))
         elif me == 2:
@@ -32,7 +32,7 @@ def lkd_login():
         elif me == 3:
             response = jsonify(dict(status=1408,
                                     error='需要授权，请在隐私中关闭两步验证！'))
-        elif me == 4:
+        elif me == -2:
             response = jsonify(dict(status=1410,
                                     error='需要重置密码！'))
         else:
