@@ -9,10 +9,14 @@ def hello_world():
     return 'Hello World!'
 
 
-@app.route('/linkedin/login', methods=['POST'])
+@app.route('/linkedin/login', methods=['POST', 'GET'])
 def lkd_login():
-    username = request.form.get('username', '')
-    password = request.form.get('password', '')
+    if request.method == 'POST':
+        username = request.form.get('username', '')
+        password = request.form.get('password', '')
+    else:
+        username = request.args.get('username', '')
+        password = request.args.get('password', '')
     if password == '' or username == '':
         response = jsonify(dict(status=1409, error='账号和密码不能为空！'))
     else:
@@ -45,10 +49,14 @@ def lkd_login():
     return response
 
 
-@app.route('/linkedin/verify', methods=['POST'])
+@app.route('/linkedin/verify', methods=['POST', 'GET'])
 def lkd_verify():
-    username = request.form.get('username', '')
-    v_code = request.form.get('vCode', '')
+    if request.method == 'POST':
+        username = request.form.get('username', '')
+        v_code = request.form.get('vCode', '')
+    else:
+        username = request.args.get('username', '')
+        v_code = request.args.get('vCode', '')
     if v_code == '' or username == '':
         response = jsonify(dict(status=1407, error='账号和验证码不能为空！'))
     else:
