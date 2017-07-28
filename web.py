@@ -25,7 +25,7 @@ def lkd_login():
                                     error='密码或账号错误！'))
         elif me == -3:
             response = jsonify(dict(status=1402,
-                                    error='被拒绝登录！'))
+                                    error='被拒绝登录或其他未知错误！'))
         elif me == 2:
             response = jsonify(dict(status=1403,
                                     error='需要输入验证码！'))

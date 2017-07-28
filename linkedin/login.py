@@ -86,6 +86,9 @@ def login(account=None, username='', password=''):
 def parse_login_success(response, username, csrfToken):
     soup = BeautifulSoup(response.text, 'lxml'). \
         find('meta', attrs={'name': 'clientPageInstanceId'})
+    if soup is None:
+        log.warn('其他未知错误：{0}'.format(response.text))
+        return -3
     client_page_id = soup['content']
     text = unquote(html.unescape(response.text).encode(response.encoding).decode())
     soup = BeautifulSoup(text, "lxml")
@@ -116,7 +119,7 @@ def check_login(account):
         contact.s = s
         contact.client_page_id = me['clientPageId']
         contact.csrf_token = me['csrfToken']
-        account.new_count = account.resume_count
+        account.now_count = account.resume_count
         account.resume_count = contact.crawl_cnum()
         account.status = 1
         log.info(account.username + '账户可用')
