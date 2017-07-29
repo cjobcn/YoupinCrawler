@@ -12,6 +12,10 @@ home_url = 'https://www.linkedin.com/'
 
 
 def crawl_cnum():
+    """
+    爬取好友数
+    :return:
+    """
     summary_url = home_url + 'voyager/api/relationships/connectionsSummary'
     x_li_page_instance = 'urn:li:page:d_flagship3_feed;' + str(client_page_id)
     headers = {'Csrf-Token': csrf_token,
@@ -33,6 +37,12 @@ def crawl_cnum():
 
 
 def crawl_connections(start=0, count=100):
+    """
+    爬取好友列表
+    :param start:
+    :param count:
+    :return:
+    """
     connections_url = home_url + '/voyager/api/relationships/connections'
     params = dict(sortType='RECENTLY_ADDED',
                   count=count, start=start)
@@ -68,6 +78,12 @@ def crawl_connections(start=0, count=100):
 
 
 def crawl_detail(pub_id, dist=1):
+    """
+    爬取好友详情
+    :param pub_id:
+    :param dist:
+    :return:
+    """
     log.info('开始爬取{0}'.format(pub_id))
     profile_url = home_url + '/voyager/api/identity/profiles/{0}/profileView'.format(pub_id)
     x_li_page_instance = 'urn:li:page:d_flagship3_profile_view_base;{0}'.format(client_page_id)

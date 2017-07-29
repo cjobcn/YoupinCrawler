@@ -25,9 +25,9 @@ cache_dir = os.path.join(root_path, 'sessions')
 def login(account=None, username='', password=''):
     """
     模拟登录
-    :param account:
-    :param username:
-    :param password:
+    :param account: 账号对象
+    :param username: 用户名
+    :param password: 用户密码
     :return:
     """
     login_url = 'https://www.linkedin.com/uas/login'
@@ -84,6 +84,13 @@ def login(account=None, username='', password=''):
 
 
 def parse_login_success(response, username, csrfToken):
+    """
+    解析登录成功的响应
+    :param response: 登录成功后的响应
+    :param username: 用户名
+    :param csrfToken: 跨域Token
+    :return:
+    """
     soup = BeautifulSoup(response.text, 'lxml'). \
         find('meta', attrs={'name': 'clientPageInstanceId'})
     if soup is None:
@@ -110,6 +117,7 @@ def parse_login_success(response, username, csrfToken):
 def check_login(account):
     """
     检测当前账号
+    :param account:
     :return:
     """
     log.info(account.username + '账户检测')
@@ -129,6 +137,11 @@ def check_login(account):
 
 
 def get_verify_params(response):
+    """
+    获取验证账号
+    :param response:
+    :return:
+    """
     soup = BeautifulSoup(response, "lxml")
     dts = soup.find('input', attrs={'name': 'dts'})['value']
     security_challenge_id = soup.find(
@@ -152,6 +165,13 @@ def get_verify_params(response):
 
 
 def verify(username, v_code, params):
+    """
+    验证验证码
+    :param username:
+    :param v_code:
+    :param params:
+    :return:
+    """
     if params['signin'] == '验证':
         verify_url = 'https://www.linkedin.com/uas/two-step-verification-submit'
     else:
@@ -177,6 +197,11 @@ def verify(username, v_code, params):
 
 
 def get_session(username):
+    """
+    获取会话缓存
+    :param username:
+    :return:
+    """
     cache_path = os.path.join(
         cache_dir, base64.urlsafe_b64encode(username.encode()).decode())
     if os.path.isfile(cache_path):
@@ -192,6 +217,12 @@ def get_session(username):
 
 
 def cache_session(username, params):
+    """
+    缓存会话和必要的参数
+    :param username:
+    :param params:
+    :return:
+    """
     if not os.path.isdir(cache_dir):
         os.mkdir(cache_dir)
     cache_path = os.path.join(
@@ -201,6 +232,11 @@ def cache_session(username, params):
 
 
 def is_expired(path):
+    """
+    判断缓存是否过期
+    :param path:
+    :return:
+    """
     mtime = os.path.getmtime(path)
     current_time = time.time()
     expire_time = 5 * 60

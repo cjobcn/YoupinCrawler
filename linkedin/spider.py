@@ -36,6 +36,11 @@ def crawl_contact(n=1):
                 continue
             login.s = requests.session()
             me = login.login(account)
+            # 如果返回值不是字典类型，说明登录失败，修改账号状态
+            if type(me) is not dict:
+                account.status = me
+                account.save()
+                continue
             contact.client_page_id = me['clientPageId']
             contact.csrf_token = me['csrfToken']
             contact.s = login.s
