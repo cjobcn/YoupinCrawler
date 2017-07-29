@@ -9,9 +9,13 @@ log = yplog.YPLogger('spider', 'maimai')
 
 def check_account(status=1):
     log.info('开始账户检测！')
-    if type(status) == dict:
+    # 检测所有账号
+    if status is None:
+        accounts = model.SjUser.select()
+    elif type(status) == dict:
         accounts = model.SjUser.select().where(
             model.SjUser.status << status)
+    # 检测特定状态的账号
     else:
         accounts = model.SjUser.select().where(
             model.SjUser.status == status)
@@ -23,16 +27,18 @@ def check_account(status=1):
 
 
 def crawl_dist1(n=1):
+    """
+    爬取好友列表
+    :param n: 开始页
+    :param username: 用户名
+    :return:
+    """
     log.info('开始爬取正常用户的好友列表！')
     # 一次获取最高好友数
     max_once = 3000
     list_start = (n - 1) * max_once
-    # 获取某个账户或所有正常账户
-    try:
-        accounts = model.get_accounts(
-            condition=model.SjUser.username == sys.argv[3])
-    except IndexError:
-        accounts = model.get_accounts(condition=model.SjUser.status == 1)
+    # 获取所有正常账户
+    accounts = model.get_accounts(condition=model.SjUser.status == 1)
     for account in accounts:
         cn = account.resume_count
         if list_start >= cn:
@@ -48,6 +54,12 @@ def crawl_dist1(n=1):
             else:
                 contact.crawl_contact(cn, list_start)
             log.info(account.username + '的好友爬取结束！')
+        else:
+            # 账号出错
+            log.info('{0}的账户状态被修改为{1}'.format(account.username, login_id))
+            account.status = login_id
+            account.save()
+            continue
         time.sleep(10)
     log.info('好友列表爬取完毕！')
 
@@ -60,7 +72,7 @@ def crawl_detail():
         mms = model.query(model.SjBasic,
                           (model.SjBasic.login == login_id) &
                           (model.SjBasic.status == 0) &
-                          (model.SjBasic.dist == 1))
+                          (model.SjBasic.dist == 1), pnum=100)
         if mms is not None:
             login.s = requests.Session()
             login_id = login.login(account)
@@ -69,6 +81,12 @@ def crawl_detail():
                 for mm in mms:
                     detail.crawl_detail(mm.mm)
                     time.sleep(1)
+            else:
+                # 账号出错
+                log.info('{0}的账户状态被修改为{1}'.format(account.username, login_id))
+                account.status = login_id
+                account.save()
+                continue
         time.sleep(10)
     log.info('好友详情抓取完毕！')
 

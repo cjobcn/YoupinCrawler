@@ -128,8 +128,7 @@ def get_accounts(mm_account=None, condition=True):
     return result
 
 
-def query(table, condition, page=1):
-    pnum = 100
+def query(table, condition, page=1, pnum = 100):
     try:
         return table.select().where(condition).paginate(page, pnum)
     except DoesNotExist:

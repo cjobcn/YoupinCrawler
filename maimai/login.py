@@ -12,15 +12,16 @@ log = yplog.YPLogger('login', 'maimai')
 s = requests.Session()
 
 
-def login(account):
+def login(account, username='', password=''):
     """
     模拟登录
     :return: 登录成功返回当前用户的mmid，否则失败码
     """
     try:
-        username = account.username
-        password = decrypt.think_decrypt(
-            account.password, config['maimai']['key'])
+        if username == '':
+            username = account.username
+            password = decrypt.think_decrypt(
+                account.password, config['maimai']['key'])
     except AttributeError:
         username = config['maimai']['username']
         password = config['maimai']['password']
