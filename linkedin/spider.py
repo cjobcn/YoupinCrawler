@@ -47,6 +47,7 @@ def crawl_contact(n=1):
             contact.csrf_token = me['csrfToken']
             contact.s = login.s
             connection_list = contact.crawl_connections(start, count)
+            exist_count = 0
             for connection in connection_list:
                 pub_id = connection['pub']
                 linkedin_id = connection['linkedin']
@@ -62,6 +63,14 @@ def crawl_contact(n=1):
                     for project in data['projects']:
                         model.insert_project(project, linkedin_id)
                     time.sleep(1)
+                else:
+                    exist_count += 1
+            if exist_count == len(connection_list):
+                account.now_count = account.resume_count
+                account.update_time = int(time.time())
+                account.save()
+        if len(accounts) == 0:
+            break
         log.info('第{0}次循环爬取完成'.format(int(start/count) + 1))
         time.sleep(30)
     log.info('所有账户的联系人爬取完毕！')

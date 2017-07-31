@@ -127,7 +127,7 @@ def check_login(account):
         contact.s = s
         contact.client_page_id = me['clientPageId']
         contact.csrf_token = me['csrfToken']
-        account.now_count = account.resume_count
+        # account.now_count = account.resume_count
         account.resume_count = contact.crawl_cnum()
         account.status = 1
         account.update_time = int(time.time())
