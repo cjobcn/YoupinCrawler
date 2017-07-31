@@ -30,7 +30,7 @@ def crawl_contact(n=1):
     count = 200
     for start in range((n-1)*count, max_count, count):
         accounts = model.SjUser.select().where(
-            model.SjUser.status == 1)
+            model.SjUser.status == 1 & model.SjUser.resume_count > model.SjUser.now_count)
         for account in accounts:
             if account.resume_count < start:
                 continue
