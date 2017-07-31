@@ -31,6 +31,8 @@ def crawl_detail(mm_id):
     else:
         log.warn(str(mm_id) + '被拒绝获取详情: ' + str(dr.status_code))
         log.warn(dr.url + '\n' + dr.text)
+        model.update(model.SjBasic, dict(status=-1),
+                     model.SjBasic.mm == mm_id)
         return False
     card = detail['card']
     uinfo = detail['uinfo']
