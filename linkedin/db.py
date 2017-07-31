@@ -75,7 +75,8 @@ class SjProject(BaseModel):
 
 class SjUser(BaseModel):
     cid = IntegerField(null=True)
-    create_time = CharField(null=True)
+    create_time = IntegerField(null=True)
+    update_time = IntegerField(null=True)
     username = CharField(db_column='linked_account', null=True, unique=True)
     password = CharField(db_column='linked_password', null=True)
     lk = IntegerField(db_column='lk_id', index=True, null=True)

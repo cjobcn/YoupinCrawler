@@ -38,6 +38,7 @@ def crawl_contact(n=1):
             me = login.login(account)
             # 如果返回值不是字典类型，说明登录失败，修改账号状态
             if type(me) is not dict:
+                account.update_time = int(time.time())
                 account.status = me
                 account.save()
                 continue
@@ -61,7 +62,7 @@ def crawl_contact(n=1):
                         model.insert_project(project, linkedin_id)
                     time.sleep(1)
         log.info('第{0}次循环爬取完成'.format(int(start/count) + 1))
-        time.sleep(60)
+        time.sleep(30)
     log.info('所有账户的联系人爬取完毕！')
 
 

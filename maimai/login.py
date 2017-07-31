@@ -75,6 +75,7 @@ def check_login(account):
     login_id = login(account)
     if login_id > 0:
         account.mm = login_id
+        account.now_count = account.resume_count
         account.resume_count = count_contact(login_id)
         account.status = 1
         log.info(account.username + '账户可用')

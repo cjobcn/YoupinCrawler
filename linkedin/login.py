@@ -130,6 +130,7 @@ def check_login(account):
         account.now_count = account.resume_count
         account.resume_count = contact.crawl_cnum()
         account.status = 1
+        account.update_time = int(time.time())
         log.info(account.username + '账户可用')
     else:
         account.status = me
