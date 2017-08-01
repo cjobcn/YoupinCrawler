@@ -190,24 +190,27 @@ def verify(username, v_code, params):
             return -2
         log.info(username + '验证通过')
         log.debug(vr.text)
-        return parse_login_success(vr, username, params['csrfToken'])
+        params = parse_login_success(vr, username, params['csrfToken'])
+        cache_session(username, params, 'login')
+        return params
     else:
         log.warn("""登录请求被拒绝:{0}
                         {1}""".format(vr.status_code, vr.text))
         return False
 
 
-def get_session(username):
+def get_session(username, action='verify'):
     """
     获取会话缓存
     :param username:
+    :param action:
     :return:
     """
-    cache_path = os.path.join(
-        cache_dir, base64.urlsafe_b64encode(username.encode()).decode())
-    if os.path.isfile(cache_path):
-        if not is_expired(cache_path):
-            with open(cache_path, 'rb') as f:
+    session_path = os.path.join(
+        cache_dir, action, base64.urlsafe_b64encode(username.encode()).decode())
+    if os.path.isfile(session_path):
+        if not is_expired(session_path):
+            with open(session_path, 'rb') as f:
                 return pickle.load(f)
         else:
             log.warn(username + '会话缓存已过期！')
@@ -217,17 +220,18 @@ def get_session(username):
         return False
 
 
-def cache_session(username, params):
+def cache_session(username, params, action='verify'):
     """
     缓存会话和必要的参数
     :param username:
     :param params:
     :return:
     """
-    if not os.path.isdir(cache_dir):
-        os.mkdir(cache_dir)
+    session_dir = os.path.join(cache_dir, action)
+    if not os.path.isdir(session_dir):
+        os.makedirs(session_dir)
     cache_path = os.path.join(
-        cache_dir, base64.urlsafe_b64encode(username.encode()).decode())
+        session_dir, base64.urlsafe_b64encode(username.encode()).decode())
     with open(cache_path, 'wb') as f:
         pickle.dump(dict(session=s, params=params), f)
 
@@ -244,10 +248,10 @@ def is_expired(path):
     return current_time - mtime > expire_time
 
 if __name__ == "__main__":
-    s = requests.Session()
+    # s = requests.Session()
     # login()
-    sessionInfo = get_session(config['linkedin']['username'])
-    s = sessionInfo['session']
-    verify_params = sessionInfo['params']
-    verify(config['linkedin']['username'], 260627, verify_params)
-
+    # sessionInfo = get_session(config['linkedin']['username'])
+    # s = sessionInfo['session']
+    # verify_params = sessionInfo['params']
+    # verify(config['linkedin']['username'], 853986, verify_params)
+    sessionInfo = get_session(config['linkedin']['username'], 'login')

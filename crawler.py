@@ -12,6 +12,9 @@ parse.add_argument('-a', '-action',
 parse.add_argument('-n', dest='n', type=int,
                    metavar='<n>', required=False,
                    help='第<n>次爬取或用户状态值')
+parse.add_argument('-u', dest='u', type=str,
+                   metavar='<u>', required=False,
+                   help='账号用户名')
 args = parse.parse_args()
 # print(args)
 
@@ -27,7 +30,8 @@ elif 'dist1' in args.action:
 elif 'detail' in args.action:
     spider.crawl_detail()
 elif 'contact' in args.action:
-    spider.crawl_contact(args.n if args.n is not None else 1)
+    spider.crawl_contact(args.n if args.n is not None else 1,
+                         args.u if args.u is not None else '')
 elif 'local' in args.action:
     from maimai import local
     local.bulk_parse()
