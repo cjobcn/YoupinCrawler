@@ -209,12 +209,8 @@ def get_session(username, action='verify'):
     session_path = os.path.join(
         cache_dir, action, base64.urlsafe_b64encode(username.encode()).decode())
     if os.path.isfile(session_path):
-        if not is_expired(session_path):
-            with open(session_path, 'rb') as f:
-                return pickle.load(f)
-        else:
-            log.warn(username + '会话缓存已过期！')
-            return False
+        with open(session_path, 'rb') as f:
+            return pickle.load(f)
     else:
         log.warn(username + '会话缓存不存在！')
         return False
@@ -235,17 +231,6 @@ def cache_session(username, params, action='verify'):
     with open(cache_path, 'wb') as f:
         pickle.dump(dict(session=s, params=params), f)
 
-
-def is_expired(path):
-    """
-    判断缓存是否过期
-    :param path:
-    :return:
-    """
-    mtime = os.path.getmtime(path)
-    current_time = time.time()
-    expire_time = 5 * 60
-    return current_time - mtime > expire_time
 
 if __name__ == "__main__":
     # s = requests.Session()
