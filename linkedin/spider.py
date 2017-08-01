@@ -34,6 +34,9 @@ def crawl_contact(n=1):
             (model.SjUser.resume_count > model.SjUser.now_count))
         for account in accounts:
             if account.resume_count < start:
+                account.now_count = account.resume_count
+                account.update_time = int(time.time())
+                account.save()
                 continue
             login.s = requests.session()
             me = login.login(account)
