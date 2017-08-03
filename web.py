@@ -32,7 +32,7 @@ def lkd_login():
                                     error='被拒绝登录或其他未知错误！'))
         elif me == 2:
             response = jsonify(dict(status=1403,
-                                    error='需要输入验证码！'))
+                                    error='周和平提醒您：您需要输入验证码！'))
         elif me == 3:
             response = jsonify(dict(status=1408,
                                     error='需要授权，请在隐私中关闭两步验证！'))
@@ -71,7 +71,7 @@ def lkd_verify():
             me = login.verify(username, v_code, verify_params)
             if me == -1:
                 response = jsonify(dict(status=1404,
-                                        error='验证码无效！'))
+                                        error='周和平提醒您：您的验证码无效！'))
             elif me == -2:
                 response = jsonify(dict(status=1405,
                                         error='登录超时！'))
