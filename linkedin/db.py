@@ -84,6 +84,7 @@ class SjUser(BaseModel):
     resume_count = IntegerField(null=True)
     resume_multi = IntegerField(null=True)
     status = IntegerField(null=True)
+    session = IntegerField(null=True)
     uid = IntegerField()
 
     class Meta:

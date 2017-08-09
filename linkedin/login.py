@@ -49,7 +49,7 @@ def login(account=None, username='', password=''):
         if username == '':
             username = account.username
             password = decrypt.think_decrypt(account.password,
-                                         config['linkedin']['key'])
+                                             config['linkedin']['key'])
     except AttributeError:
         username = config['linkedin']['username']
         password = config['linkedin']['password']
@@ -108,10 +108,12 @@ def parse_login_success(response, username, csrfToken):
             pub_id = item['publicIdentifier']
             break
     log.info('{0}登录成功'.format(username))
-    return {'clientPageId': client_page_id,
-            'csrfToken': csrfToken,
-            'linkedin': linkedin_id,
-            'pub_id': pub_id}
+    params = {'clientPageId': client_page_id,
+              'csrfToken': csrfToken,
+              'linkedin': linkedin_id,
+              'pub_id': pub_id}
+    cache_session(username, params, action="login")
+    return params
 
 
 def check_login(account):
@@ -209,6 +211,7 @@ def get_session(username, action='verify'):
     session_path = os.path.join(
         cache_dir, action, base64.urlsafe_b64encode(username.encode()).decode())
     if os.path.isfile(session_path):
+        log.info(username + "已登录!")
         with open(session_path, 'rb') as f:
             return pickle.load(f)
     else:
@@ -231,6 +234,11 @@ def cache_session(username, params, action='verify'):
     with open(cache_path, 'wb') as f:
         pickle.dump(dict(session=s, params=params), f)
 
+
+def exist_session(username, action='login'):
+    session_path = os.path.join(
+        cache_dir, action, base64.urlsafe_b64encode(username.encode()).decode())
+    return os.path.isfile(session_path)
 
 if __name__ == "__main__":
     # s = requests.Session()
